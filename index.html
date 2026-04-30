@@ -4,7 +4,65 @@
   <meta charset="UTF-8">
   <title>Control Grúas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      padding: 10px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 8px;
+      border: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #22c55e;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    .resumen div {
+      margin: 5px 0;
+    }
+
+    .tipoPago {
+      display: flex;
+      gap: 5px;
+      margin: 10px 0;
+    }
+
+    .tipoPago button {
+      flex: 1;
+      background: #1e293b;
+      border: 1px solid #334155;
+    }
+
+    .activo {
+      background: #22c55e !important;
+    }
+
+    .card {
+      background: #1e293b;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 10px;
+    }
+  </style>
 </head>
 
 <body>
@@ -22,12 +80,38 @@
 <input type="text" id="marca" placeholder="Marca">
 <input type="text" id="submarca" placeholder="Submarca">
 
-<select id="tipo">
-  <option value="efectivo">Efectivo</option>
-  <option value="vale">Vale</option>
+<!-- 🔥 TIPO DE PAGO -->
+<div class="tipoPago">
+  <button id="btnEfectivo" onclick="setTipo('efectivo')">EFECTIVO</button>
+  <button id="btnVale" onclick="setTipo('vale')">VALE</button>
+  <button id="btnTransferencia" onclick="setTipo('transferencia')">TRANSFERENCIA</button>
+</div>
+
+<input type="hidden" id="tipo">
+
+<!-- 🔥 ASEGURADORAS -->
+<select id="aseguradora" style="display:none;">
+  <option value="">Seleccionar aseguradora</option>
+  <option>CHUBB</option>
+  <option>ATLAS</option>
+  <option>AXA</option>
+  <option>SURA</option>
+  <option>GNP</option>
+  <option>MAPFRE</option>
+  <option>BANCOMER</option>
+  <option>LA LATINO</option>
+  <option>ANA</option>
+  <option>GENERAL DE SEGUROS</option>
+  <option>QUALITAS</option>
+  <option>ZURICH</option>
+  <option>PRIMERO SEGUROS</option>
+  <option>AFIRME</option>
+  <option>BX+</option>
+  <option>BANORTE</option>
+  <option>HDI</option>
+  <option>INBURSA</option>
 </select>
 
-<input type="text" id="aseguradora" placeholder="Aseguradora (si es vale)">
 <input type="number" id="monto" placeholder="Monto">
 
 <input type="number" id="ajustador" placeholder="Se le dio a ajustador">
@@ -50,7 +134,52 @@
 <h2>Registros</h2>
 <div id="lista"></div>
 
-<script src="app.js"></script>
+<script>
+let tipoSeleccionado = "efectivo";
+
+function setTipo(tipo) {
+  tipoSeleccionado = tipo;
+  document.getElementById("tipo").value = tipo;
+
+  document.getElementById("btnEfectivo").classList.remove("activo");
+  document.getElementById("btnVale").classList.remove("activo");
+  document.getElementById("btnTransferencia").classList.remove("activo");
+
+  if (tipo === "efectivo") {
+    document.getElementById("btnEfectivo").classList.add("activo");
+    document.getElementById("aseguradora").style.display = "none";
+  }
+
+  if (tipo === "vale") {
+    document.getElementById("btnVale").classList.add("activo");
+    document.getElementById("aseguradora").style.display = "block";
+  }
+
+  if (tipo === "transferencia") {
+    document.getElementById("btnTransferencia").classList.add("activo");
+    document.getElementById("aseguradora").style.display = "none";
+  }
+}
+
+// Default
+setTipo("efectivo");
+
+function guardar() {
+  const tipo = tipoSeleccionado;
+  const marca = document.getElementById("marca").value;
+  const monto = document.getElementById("monto").value;
+
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <b>${marca}</b><br>
+    Tipo: ${tipo}<br>
+    Monto: $${monto}
+  `;
+
+  document.getElementById("lista").appendChild(card);
+}
+</script>
 
 </body>
 </html>
