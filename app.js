@@ -1,11 +1,36 @@
 let datos = JSON.parse(localStorage.getItem("gruas")) || [];
+let tipoSeleccionado = "efectivo";
+
+function setTipo(tipo) {
+  tipoSeleccionado = tipo;
+  document.getElementById("tipo").value = tipo;
+
+  document.getElementById("btnEfectivo").classList.remove("activo");
+  document.getElementById("btnVale").classList.remove("activo");
+  document.getElementById("btnTransferencia").classList.remove("activo");
+
+  if (tipo === "efectivo") {
+    document.getElementById("btnEfectivo").classList.add("activo");
+    document.getElementById("aseguradora").style.display = "none";
+  }
+
+  if (tipo === "vale") {
+    document.getElementById("btnVale").classList.add("activo");
+    document.getElementById("aseguradora").style.display = "block";
+  }
+
+  if (tipo === "transferencia") {
+    document.getElementById("btnTransferencia").classList.add("activo");
+    document.getElementById("aseguradora").style.display = "none";
+  }
+}
 
 function guardar() {
   const registro = {
     fecha: document.getElementById("fecha").value,
     marca: document.getElementById("marca").value,
     submarca: document.getElementById("submarca").value,
-    tipo: document.getElementById("tipo").value,
+    tipo: document.getElementById("tipo").value || tipoSeleccionado,
     aseguradora: document.getElementById("aseguradora").value,
     monto: Number(document.getElementById("monto").value) || 0,
     ajustador: Number(document.getElementById("ajustador").value) || 0,
@@ -54,14 +79,21 @@ function mostrar() {
 function resumen() {
   let totalEfectivo = 0;
   let totalVale = 0;
+  let totalTransferencia = 0;
   let totalGastos = 0;
   let gananciaTotal = 0;
 
   datos.forEach(d => {
     if (d.tipo === "efectivo") {
       totalEfectivo += d.monto;
-    } else {
+    }
+
+    if (d.tipo === "vale") {
       totalVale += d.monto;
+    }
+
+    if (d.tipo === "transferencia") {
+      totalTransferencia += d.monto;
     }
 
     totalGastos += d.gastos;
@@ -72,6 +104,10 @@ function resumen() {
   document.getElementById("totalVale").innerText = "$" + totalVale;
   document.getElementById("totalGastos").innerText = "$" + totalGastos;
   document.getElementById("gananciaTotal").innerText = "$" + gananciaTotal;
+
+  if (document.getElementById("totalTransferencia")) {
+    document.getElementById("totalTransferencia").innerText = "$" + totalTransferencia;
+  }
 }
 
 function eliminar(index) {
@@ -89,6 +125,11 @@ function limpiarFormulario() {
   document.getElementById("ajustador").value = "";
   document.getElementById("policia").value = "";
   document.getElementById("inventario").value = "";
+  document.getElementById("corralon").value = "no";
+  document.getElementById("gratis").value = "no";
+
+  setTipo("efectivo");
 }
 
+setTipo("efectivo");
 mostrar();
