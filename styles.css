@@ -32,7 +32,7 @@ body {
 .topbar h1 {
   font-size: 16px;
   text-align: center;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .topbar p {
@@ -68,7 +68,7 @@ body {
 
 .panelHeader span {
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 900;
   color: #cbd5e1;
 }
 
@@ -105,16 +105,16 @@ body {
   font-size: 20px;
 }
 
-.resumenBox .azul {
-  color: #38bdf8;
+.azul {
+  color: #38bdf8 !important;
 }
 
-.resumenBox .morado {
-  color: #a78bfa;
+.morado {
+  color: #a78bfa !important;
 }
 
-.resumenBox .naranja {
-  color: #f59e0b;
+.naranja {
+  color: #f59e0b !important;
 }
 
 .gananciaBox {
@@ -126,15 +126,10 @@ body {
   text-align: center;
 }
 
-.formGrid {
-  display: grid;
-  gap: 8px;
-}
-
 label {
   font-size: 11px;
   color: #cbd5e1;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
   display: block;
 }
 
@@ -148,7 +143,7 @@ select {
   padding: 11px;
   font-size: 13px;
   outline: none;
-  margin-bottom: 9px;
+  margin-bottom: 10px;
 }
 
 input::placeholder {
@@ -247,16 +242,22 @@ input::placeholder {
   border-radius: 11px;
   padding: 14px;
   font-weight: 900;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
-.addMini {
-  background: #2563eb;
-  border: none;
+.whatsappBtn {
+  width: 100%;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
   color: white;
-  border-radius: 7px;
-  padding: 7px 10px;
-  font-size: 11px;
+  border: none;
+  border-radius: 11px;
+  padding: 14px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.whatsappBtn.semana {
+  background: linear-gradient(135deg, #0ea5e9, #2563eb);
 }
 
 .card {
@@ -378,10 +379,4 @@ input::placeholder {
   display: block;
   font-size: 9px;
   margin-top: 2px;
-}
-
-@media (min-width: 800px) {
-  .app {
-    max-width: 430px;
-  }
 }
