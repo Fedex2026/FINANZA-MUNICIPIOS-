@@ -45,10 +45,34 @@ function setCorralon(tipo) {
   document.getElementById("corJC").classList.remove("activo");
   document.getElementById("corGarantia").classList.remove("activo");
 
-  if (tipo === "no") document.getElementById("corNo").classList.add("activo");
-  if (tipo === "mp") document.getElementById("corMP").classList.add("activo");
-  if (tipo === "jc") document.getElementById("corJC").classList.add("activo");
-  if (tipo === "garantia") document.getElementById("corGarantia").classList.add("activo");
+  const gastosExtra = document.getElementById("gastosExtra");
+  const label = document.getElementById("labelMPJC");
+
+  if (tipo === "no") {
+    document.getElementById("corNo").classList.add("activo");
+    gastosExtra.style.display = "none";
+    limpiarGastosExtra();
+  }
+
+  if (tipo === "mp") {
+    document.getElementById("corMP").classList.add("activo");
+    gastosExtra.style.display = "block";
+    label.innerText = "Pago a MP";
+  }
+
+  if (tipo === "jc") {
+    document.getElementById("corJC").classList.add("activo");
+    gastosExtra.style.display = "block";
+    label.innerText = "Pago a JC";
+  }
+
+  if (tipo === "garantia") {
+    document.getElementById("corGarantia").classList.add("activo");
+    gastosExtra.style.display = "none";
+    limpiarGastosExtra();
+  }
+
+  actualizarPreview();
 }
 
 function setGratis(valor) {
@@ -74,6 +98,10 @@ function guardar() {
     policia: Number(document.getElementById("policia").value) || 0,
     corralon: document.getElementById("corralon").value || corralonSeleccionado,
     inventario: document.getElementById("inventario").value.trim().toUpperCase(),
+    pagoMPJC: Number(document.getElementById("pagoMPJC").value) || 0,
+    gasolina: Number(document.getElementById("gasolina").value) || 0,
+    diesel: Number(document.getElementById("diesel").value) || 0,
+    otros: Number(document.getElementById("otros").value) || 0,
     gratis: document.getElementById("gratis").value || gratisSeleccionado,
     hora: new Date().toLocaleTimeString("es-MX", {
       hour: "2-digit",
@@ -81,7 +109,14 @@ function guardar() {
     })
   };
 
-  registro.gastos = registro.ajustador + registro.policia;
+  registro.gastos =
+    registro.ajustador +
+    registro.policia +
+    registro.pagoMPJC +
+    registro.gasolina +
+    registro.diesel +
+    registro.otros;
+
   registro.ganancia = registro.monto - registro.gastos;
 
   datos.unshift(registro);
@@ -105,6 +140,7 @@ function mostrar() {
           <b>${d.marca || "SIN MARCA"}</b>
           <span>${d.submarca || "Sin submarca"}</span>
           <span>${d.aseguradora || textoCorralon(d.corralon)}</span>
+          <span>Gastos extra: ${dinero((d.pagoMPJC || 0) + (d.gasolina || 0) + (d.diesel || 0) + (d.otros || 0))}</span>
         </div>
 
         <div class="cardRight">
@@ -148,13 +184,25 @@ function actualizarPreview() {
   const ingreso = Number(document.getElementById("monto")?.value) || 0;
   const ajustador = Number(document.getElementById("ajustador")?.value) || 0;
   const policia = Number(document.getElementById("policia")?.value) || 0;
-  const gastos = ajustador + policia;
+  const pagoMPJC = Number(document.getElementById("pagoMPJC")?.value) || 0;
+  const gasolina = Number(document.getElementById("gasolina")?.value) || 0;
+  const diesel = Number(document.getElementById("diesel")?.value) || 0;
+  const otros = Number(document.getElementById("otros")?.value) || 0;
+
+  const gastos = ajustador + policia + pagoMPJC + gasolina + diesel + otros;
   const ganancia = ingreso - gastos;
 
   document.getElementById("previewIngreso").innerText = dinero(ingreso);
   document.getElementById("previewGastos").innerText = dinero(gastos);
   document.getElementById("previewGanancia").innerText = dinero(ganancia);
   document.getElementById("previewTipo").innerText = textoTipo(tipoSeleccionado);
+}
+
+function limpiarGastosExtra() {
+  document.getElementById("pagoMPJC").value = "";
+  document.getElementById("gasolina").value = "";
+  document.getElementById("diesel").value = "";
+  document.getElementById("otros").value = "";
 }
 
 function textoTipo(tipo) {
@@ -188,13 +236,119 @@ function limpiarFormulario() {
   document.getElementById("policia").value = "";
   document.getElementById("inventario").value = "";
 
+  limpiarGastosExtra();
+
   setTipo("efectivo");
   setCorralon("no");
   setGratis("no");
   actualizarPreview();
 }
 
-["monto", "ajustador", "policia"].forEach(id => {
+function irA(seccion) {
+  if (seccion === "inicio") {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  if (seccion === "agregar") {
+    document.querySelector(".agregarPanel").scrollIntoView({ behavior: "smooth" });
+  }
+
+  if (seccion === "resumen") {
+    document.querySelector(".panel").scrollIntoView({ behavior: "smooth" });
+  }
+
+  if (seccion === "registros") {
+    document.querySelector(".registrosPanel").scrollIntoView({ behavior: "smooth" });
+  }
+}
+
+function fechaLocalISO(fecha = new Date()) {
+  const y = fecha.getFullYear();
+  const m = String(fecha.getMonth() + 1).padStart(2, "0");
+  const d = String(fecha.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function inicioSemana(fecha = new Date()) {
+  const f = new Date(fecha);
+  const dia = f.getDay();
+  const diferencia = dia === 0 ? 6 : dia - 1;
+  f.setDate(f.getDate() - diferencia);
+  return fechaLocalISO(f);
+}
+
+function enviarWhatsApp(tipoReporte) {
+  const hoy = fechaLocalISO();
+  const inicio = inicioSemana();
+
+  const registrosFiltrados = datos.filter(r => {
+    if (!r.fecha) return false;
+
+    if (tipoReporte === "dia") {
+      return r.fecha === hoy;
+    }
+
+    if (tipoReporte === "semana") {
+      return r.fecha >= inicio && r.fecha <= hoy;
+    }
+
+    return false;
+  });
+
+  if (registrosFiltrados.length === 0) {
+    alert("No hay registros para enviar.");
+    return;
+  }
+
+  let totalIngreso = 0;
+  let totalGastos = 0;
+  let totalGanancia = 0;
+
+  let mensaje = tipoReporte === "dia"
+    ? `*REPORTE DEL DÍA*\nFecha: ${hoy}\n\n`
+    : `*REPORTE SEMANAL*\nDel ${inicio} al ${hoy}\n\n`;
+
+  registrosFiltrados.forEach((r, i) => {
+    totalIngreso += r.monto || 0;
+    totalGastos += r.gastos || 0;
+    totalGanancia += r.ganancia || 0;
+
+    mensaje += `*${i + 1}. ${r.marca || "SIN MARCA"} ${r.submarca || ""}*\n`;
+    mensaje += `Fecha: ${r.fecha || "Sin fecha"}\n`;
+    mensaje += `Hora: ${r.hora || "Sin hora"}\n`;
+    mensaje += `Tipo: ${textoTipo(r.tipo)}\n`;
+    mensaje += `Aseguradora: ${r.aseguradora || "No aplica"}\n`;
+    mensaje += `Corralón: ${textoCorralon(r.corralon)}\n`;
+    mensaje += `Inventario: ${r.inventario || "No aplica"}\n`;
+    mensaje += `Ingreso: ${dinero(r.monto)}\n`;
+    mensaje += `Ajustador: ${dinero(r.ajustador)}\n`;
+    mensaje += `Policías: ${dinero(r.policia)}\n`;
+    mensaje += `Pago MP/JC: ${dinero(r.pagoMPJC)}\n`;
+    mensaje += `Gasolina: ${dinero(r.gasolina)}\n`;
+    mensaje += `Diésel: ${dinero(r.diesel)}\n`;
+    mensaje += `Otros: ${dinero(r.otros)}\n`;
+    mensaje += `Gastos totales: ${dinero(r.gastos)}\n`;
+    mensaje += `Ganancia: ${dinero(r.ganancia)}\n\n`;
+  });
+
+  mensaje += `*RESUMEN*\n`;
+  mensaje += `Total ingreso: ${dinero(totalIngreso)}\n`;
+  mensaje += `Total gastos: ${dinero(totalGastos)}\n`;
+  mensaje += `Ganancia total: ${dinero(totalGanancia)}\n`;
+
+  const url = "https://wa.me/?text=" + encodeURIComponent(mensaje);
+  window.open(url, "_blank");
+}
+
+[
+  "monto",
+  "ajustador",
+  "policia",
+  "pagoMPJC",
+  "gasolina",
+  "diesel",
+  "otros"
+].forEach(id => {
   document.getElementById(id).addEventListener("input", actualizarPreview);
 });
 
