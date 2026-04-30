@@ -1,1 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Control Grúas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      padding: 10px;
+    }
+    h1 {
+      text-align: center;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 8px;
+      border: none;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #22c55e;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+    .card {
+      background: #1e293b;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
 
+<body>
+
+<h1>Control Grúas</h1>
+
+<input type="date" id="fecha">
+<input type="text" id="marca" placeholder="Marca">
+<input type="text" id="submarca" placeholder="Submarca">
+
+<select id="tipo">
+  <option value="efectivo">Efectivo</option>
+  <option value="vale">Vale</option>
+</select>
+
+<input type="text" id="aseguradora" placeholder="Aseguradora (si es vale)">
+<input type="number" id="monto" placeholder="Monto">
+
+<input type="number" id="ajustador" placeholder="Se le dio a ajustador">
+<input type="number" id="policia" placeholder="Se le dio a policías">
+
+<select id="corralon">
+  <option value="no">No corralón</option>
+  <option value="si">Sí corralón</option>
+</select>
+
+<input type="text" id="inventario" placeholder="Número inventario">
+
+<select id="gratis">
+  <option value="no">No gratis</option>
+  <option value="si">Se baja gratis</option>
+</select>
+
+<button onclick="guardar()">Guardar</button>
+
+<h2>Registros</h2>
+<div id="lista"></div>
+
+<script>
+let datos = JSON.parse(localStorage.getItem("gruas")) || [];
+
+function guardar() {
+  let registro = {
+    fecha: document.getElementById("fecha").value,
+    marca: document.getElementById("marca").value,
+    submarca: document.getElementById("submarca").value,
+    tipo: document.getElementById("tipo").value,
+    aseguradora: document.getElementById("aseguradora").value,
+    monto: Number(document.getElementById("monto").value),
+    ajustador: Number(document.getElementById("ajustador").value),
+    policia: Number(document.getElementById("policia").value),
+    corralon: document.getElementById("corralon").value,
+    inventario: document.getElementById("inventario").value,
+    gratis: document.getElementById("gratis").value
+  };
+
+  registro.ganancia = registro.monto - registro.ajustador - registro.policia;
+
+  datos.push(registro);
+  localStorage.setItem("gruas", JSON.stringify(datos));
+
+  mostrar();
+}
+
+function mostrar() {
+  let lista = document.getElementById("lista");
+  lista.innerHTML = "";
+
+  datos.forEach(d => {
+    lista.innerHTML += `
+      <div class="card">
+        <b>${d.marca} ${d.submarca}</b><br>
+        ${d.fecha}<br>
+        Tipo: ${d.tipo}<br>
+        Monto: $${d.monto}<br>
+        Ganancia: $${d.ganancia}
+      </div>
+    `;
+  });
+}
+
+mostrar();
+</script>
+
+</body>
+</html>
