@@ -1,185 +1,196 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Control Grúas</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <style>
-    body {
-      font-family: Arial;
-      background: #0f172a;
-      color: white;
-      padding: 10px;
-    }
-
-    h1 {
-      text-align: center;
-    }
-
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin: 5px 0;
-      border-radius: 8px;
-      border: none;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #22c55e;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      margin-top: 10px;
-    }
-
-    .resumen div {
-      margin: 5px 0;
-    }
-
-    .tipoPago {
-      display: flex;
-      gap: 5px;
-      margin: 10px 0;
-    }
-
-    .tipoPago button {
-      flex: 1;
-      background: #1e293b;
-      border: 1px solid #334155;
-    }
-
-    .activo {
-      background: #22c55e !important;
-    }
-
-    .card {
-      background: #1e293b;
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 10px;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <title>Control de Ingresos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
 
-<h1>Control Grúas</h1>
+<div class="app">
 
-<div class="resumen">
-  <div>Total efectivo: <b id="totalEfectivo">$0</b></div>
-  <div>Total vales: <b id="totalVale">$0</b></div>
-  <div>Total gastos: <b id="totalGastos">$0</b></div>
-  <div>Ganancia total: <b id="gananciaTotal">$0</b></div>
+  <header class="topbar">
+    <button class="iconBtn">☰</button>
+    <div>
+      <h1>Control de Ingresos</h1>
+      <p>Grúas Metropolitanas</p>
+    </div>
+    <button class="iconBtn">⌕</button>
+  </header>
+
+  <section class="panel">
+    <div class="panelHeader">
+      <span>RESUMEN DEL DÍA</span>
+      <small id="fechaHoy"></small>
+    </div>
+
+    <div class="resumenGrid">
+      <div class="resumenBox">
+        <small>Total Efectivo</small>
+        <b id="totalEfectivo">$0</b>
+      </div>
+
+      <div class="resumenBox">
+        <small>Total Vales</small>
+        <b class="azul" id="totalVale">$0</b>
+      </div>
+
+      <div class="resumenBox">
+        <small>Transferencia</small>
+        <b class="morado" id="totalTransferencia">$0</b>
+      </div>
+
+      <div class="resumenBox">
+        <small>Gastos</small>
+        <b class="naranja" id="totalGastos">$0</b>
+      </div>
+    </div>
+
+    <div class="gananciaBox">
+      <small>Ganancia Total</small>
+      <b id="gananciaTotal">$0</b>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panelHeader">
+      <span>AGREGAR NUEVO REGISTRO</span>
+    </div>
+
+    <div class="formGrid">
+      <label>Fecha</label>
+      <input type="date" id="fecha" />
+
+      <label>Marca</label>
+      <input type="text" id="marca" placeholder="Ej. Nissan" />
+
+      <label>Submarca</label>
+      <input type="text" id="submarca" placeholder="Ej. Versa" />
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="sectionTitle">TIPO DE PAGO</div>
+
+    <div class="payButtons">
+      <button type="button" id="btnEfectivo" onclick="setTipo('efectivo')">💵 EFECTIVO</button>
+      <button type="button" id="btnVale" onclick="setTipo('vale')">📄 VALE</button>
+      <button type="button" id="btnTransferencia" onclick="setTipo('transferencia')">💳 TRANSFERENCIA</button>
+    </div>
+
+    <input type="hidden" id="tipo" />
+  </section>
+
+  <section class="panel" id="valePanel">
+    <div class="sectionTitle">SI ES VALE</div>
+
+    <label>Aseguradora</label>
+    <select id="aseguradora">
+      <option value="">Seleccionar aseguradora</option>
+      <option>CHUBB</option>
+      <option>ATLAS</option>
+      <option>AXA</option>
+      <option>SURA</option>
+      <option>GNP</option>
+      <option>MAPFRE</option>
+      <option>BANCOMER</option>
+      <option>LA LATINO</option>
+      <option>ANA</option>
+      <option>GENERAL DE SEGUROS</option>
+      <option>QUALITAS</option>
+      <option>ZURICH</option>
+      <option>PRIMERO SEGUROS</option>
+      <option>AFIRME</option>
+      <option>BX+</option>
+      <option>BANORTE</option>
+      <option>HDI</option>
+      <option>INBURSA</option>
+    </select>
+  </section>
+
+  <section class="panel">
+    <div class="sectionTitle naranjaTexto">INGRESO</div>
+
+    <label>Monto recibido / Total del vale</label>
+    <input type="number" id="monto" placeholder="Ej. 1500" />
+  </section>
+
+  <section class="panel">
+    <div class="sectionTitle verdeTexto">GASTOS</div>
+
+    <div class="twoCols">
+      <div>
+        <label>Se le dio a ajustador</label>
+        <input type="number" id="ajustador" placeholder="Ej. 300" />
+      </div>
+
+      <div>
+        <label>Se le dio a policías</label>
+        <input type="number" id="policia" placeholder="Ej. 200" />
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="sectionTitle">CORRALÓN</div>
+
+    <label>¿A dónde va?</label>
+    <div class="corralonButtons">
+      <button type="button" id="corNo" onclick="setCorralon('no')">NO</button>
+      <button type="button" id="corMP" onclick="setCorralon('mp')">MP</button>
+      <button type="button" id="corJC" onclick="setCorralon('jc')">JC</button>
+      <button type="button" id="corGarantia" onclick="setCorralon('garantia')">GARANTÍA</button>
+    </div>
+
+    <input type="hidden" id="corralon" />
+
+    <label>Número de inventario</label>
+    <input type="text" id="inventario" placeholder="Ej. INV-001234" />
+  </section>
+
+  <section class="panel">
+    <div class="sectionTitle moradoTexto">¿SE BAJA GRATIS?</div>
+
+    <div class="freeButtons">
+      <button type="button" id="gratisSi" onclick="setGratis('si')">SÍ</button>
+      <button type="button" id="gratisNo" onclick="setGratis('no')">NO</button>
+    </div>
+
+    <input type="hidden" id="gratis" />
+  </section>
+
+  <section class="panel">
+    <div class="sectionTitle moradoTexto">RESUMEN DEL MOVIMIENTO</div>
+
+    <div class="miniResumen">
+      <p>Total ingreso <b id="previewIngreso">$0</b></p>
+      <p>Total gastos <b id="previewGastos">$0</b></p>
+      <p>Ganancia <b id="previewGanancia">$0</b></p>
+      <p>Forma de ingreso <b id="previewTipo">Efectivo</b></p>
+    </div>
+  </section>
+
+  <button class="saveBtn" onclick="guardar()">💾 GUARDAR REGISTRO</button>
+
+  <section class="panel registrosPanel">
+    <div class="panelHeader">
+      <span>REGISTROS DE HOY</span>
+      <button class="addMini">+ Agregar</button>
+    </div>
+
+    <div id="lista"></div>
+  </section>
+
+  <nav class="bottomNav">
+    <button>🏠<span>Inicio</span></button>
+    <button>➕<span>Agregar</span></button>
+    <button>📊<span>Resumen</span></button>
+    <button>•••<span>Más</span></button>
+  </nav>
+
 </div>
 
-<input type="date" id="fecha">
-<input type="text" id="marca" placeholder="Marca">
-<input type="text" id="submarca" placeholder="Submarca">
-
-<!-- 🔥 TIPO DE PAGO -->
-<div class="tipoPago">
-  <button id="btnEfectivo" onclick="setTipo('efectivo')">EFECTIVO</button>
-  <button id="btnVale" onclick="setTipo('vale')">VALE</button>
-  <button id="btnTransferencia" onclick="setTipo('transferencia')">TRANSFERENCIA</button>
-</div>
-
-<input type="hidden" id="tipo">
-
-<!-- 🔥 ASEGURADORAS -->
-<select id="aseguradora" style="display:none;">
-  <option value="">Seleccionar aseguradora</option>
-  <option>CHUBB</option>
-  <option>ATLAS</option>
-  <option>AXA</option>
-  <option>SURA</option>
-  <option>GNP</option>
-  <option>MAPFRE</option>
-  <option>BANCOMER</option>
-  <option>LA LATINO</option>
-  <option>ANA</option>
-  <option>GENERAL DE SEGUROS</option>
-  <option>QUALITAS</option>
-  <option>ZURICH</option>
-  <option>PRIMERO SEGUROS</option>
-  <option>AFIRME</option>
-  <option>BX+</option>
-  <option>BANORTE</option>
-  <option>HDI</option>
-  <option>INBURSA</option>
-</select>
-
-<input type="number" id="monto" placeholder="Monto">
-
-<input type="number" id="ajustador" placeholder="Se le dio a ajustador">
-<input type="number" id="policia" placeholder="Se le dio a policías">
-
-<select id="corralon">
-  <option value="no">No corralón</option>
-  <option value="si">Sí corralón</option>
-</select>
-
-<input type="text" id="inventario" placeholder="Número inventario">
-
-<select id="gratis">
-  <option value="no">No gratis</option>
-  <option value="si">Se baja gratis</option>
-</select>
-
-<button onclick="guardar()">Guardar</button>
-
-<h2>Registros</h2>
-<div id="lista"></div>
-
-<script>
-let tipoSeleccionado = "efectivo";
-
-function setTipo(tipo) {
-  tipoSeleccionado = tipo;
-  document.getElementById("tipo").value = tipo;
-
-  document.getElementById("btnEfectivo").classList.remove("activo");
-  document.getElementById("btnVale").classList.remove("activo");
-  document.getElementById("btnTransferencia").classList.remove("activo");
-
-  if (tipo === "efectivo") {
-    document.getElementById("btnEfectivo").classList.add("activo");
-    document.getElementById("aseguradora").style.display = "none";
-  }
-
-  if (tipo === "vale") {
-    document.getElementById("btnVale").classList.add("activo");
-    document.getElementById("aseguradora").style.display = "block";
-  }
-
-  if (tipo === "transferencia") {
-    document.getElementById("btnTransferencia").classList.add("activo");
-    document.getElementById("aseguradora").style.display = "none";
-  }
-}
-
-// Default
-setTipo("efectivo");
-
-function guardar() {
-  const tipo = tipoSeleccionado;
-  const marca = document.getElementById("marca").value;
-  const monto = document.getElementById("monto").value;
-
-  const card = document.createElement("div");
-  card.className = "card";
-  card.innerHTML = `
-    <b>${marca}</b><br>
-    Tipo: ${tipo}<br>
-    Monto: $${monto}
-  `;
-
-  document.getElementById("lista").appendChild(card);
-}
-</script>
-
+<script src="app.js"></script>
 </body>
 </html>
