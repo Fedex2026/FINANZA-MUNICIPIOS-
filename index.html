@@ -53,21 +53,19 @@
     </div>
   </section>
 
-  <section class="panel">
+  <section class="panel agregarPanel">
     <div class="panelHeader">
       <span>AGREGAR NUEVO REGISTRO</span>
     </div>
 
-    <div class="formGrid">
-      <label>Fecha</label>
-      <input type="date" id="fecha" />
+    <label>Fecha</label>
+    <input type="date" id="fecha" />
 
-      <label>Marca</label>
-      <input type="text" id="marca" placeholder="Ej. Nissan" />
+    <label>Marca</label>
+    <input type="text" id="marca" placeholder="Ej. Nissan" />
 
-      <label>Submarca</label>
-      <input type="text" id="submarca" placeholder="Ej. Versa" />
-    </div>
+    <label>Submarca</label>
+    <input type="text" id="submarca" placeholder="Ej. Versa" />
   </section>
 
   <section class="panel">
@@ -149,6 +147,28 @@
     <input type="text" id="inventario" placeholder="Ej. INV-001234" />
   </section>
 
+  <section class="panel" id="gastosExtra" style="display:none;">
+    <div class="sectionTitle naranjaTexto">GASTOS EXTRA</div>
+
+    <label id="labelMPJC">Pago a MP / JC</label>
+    <input type="number" id="pagoMPJC" placeholder="Ej. 500" />
+
+    <div class="twoCols">
+      <div>
+        <label>Gasolina</label>
+        <input type="number" id="gasolina" placeholder="Ej. 200" />
+      </div>
+
+      <div>
+        <label>Diésel</label>
+        <input type="number" id="diesel" placeholder="Ej. 300" />
+      </div>
+    </div>
+
+    <label>Otros gastos</label>
+    <input type="number" id="otros" placeholder="Ej. 150" />
+  </section>
+
   <section class="panel">
     <div class="sectionTitle moradoTexto">¿SE BAJA GRATIS?</div>
 
@@ -173,20 +193,22 @@
 
   <button class="saveBtn" onclick="guardar()">💾 GUARDAR REGISTRO</button>
 
+  <button class="whatsappBtn" onclick="enviarWhatsApp('dia')">📲 ENVIAR REPORTE DEL DÍA</button>
+  <button class="whatsappBtn semana" onclick="enviarWhatsApp('semana')">📆 ENVIAR REPORTE DE LA SEMANA</button>
+
   <section class="panel registrosPanel">
     <div class="panelHeader">
       <span>REGISTROS DE HOY</span>
-      <button class="addMini">+ Agregar</button>
     </div>
 
     <div id="lista"></div>
   </section>
 
   <nav class="bottomNav">
-    <button>🏠<span>Inicio</span></button>
-    <button>➕<span>Agregar</span></button>
-    <button>📊<span>Resumen</span></button>
-    <button>•••<span>Más</span></button>
+    <button onclick="irA('inicio')">🏠<span>Inicio</span></button>
+    <button onclick="irA('agregar')">➕<span>Agregar</span></button>
+    <button onclick="irA('resumen')">📊<span>Resumen</span></button>
+    <button onclick="irA('registros')">•••<span>Más</span></button>
   </nav>
 
 </div>
