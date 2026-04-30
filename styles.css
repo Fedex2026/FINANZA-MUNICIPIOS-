@@ -1,0 +1,95 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* BODY */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #0f172a;
+  color: #fff;
+  padding: 15px;
+}
+
+/* TITULO */
+h1 {
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+/* INPUTS Y SELECT */
+input, select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  border: none;
+  background: #1e293b;
+  color: white;
+  font-size: 14px;
+}
+
+/* PLACEHOLDER */
+input::placeholder {
+  color: #94a3b8;
+}
+
+/* BOTÓN */
+button {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+/* TARJETAS */
+.card {
+  background: #1e293b;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+/* TEXTO DENTRO DE TARJETAS */
+.card b {
+  font-size: 16px;
+  color: #22c55e;
+}
+
+.card span {
+  display: block;
+  font-size: 13px;
+  color: #cbd5f5;
+}
+
+/* GANANCIA */
+.ganancia {
+  margin-top: 5px;
+  font-weight: bold;
+  color: #22c55e;
+}
+
+/* RESPONSIVE (celular) */
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 20px;
+  }
+
+  input, select {
+    font-size: 13px;
+  }
+}
