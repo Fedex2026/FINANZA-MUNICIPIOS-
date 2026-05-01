@@ -8,6 +8,11 @@ function dinero(n) {
   return "$" + Number(n || 0).toLocaleString("es-MX");
 }
 
+function textoVales(n) {
+  const cantidad = Number(n || 0);
+  return cantidad + (cantidad === 1 ? " vale" : " vales");
+}
+
 function setTipo(tipo) {
   tipoSeleccionado = tipo;
   document.getElementById("tipo").value = tipo;
@@ -16,21 +21,30 @@ function setTipo(tipo) {
   document.getElementById("btnVale").classList.remove("activo");
   document.getElementById("btnTransferencia").classList.remove("activo");
 
+  const labelMonto = document.getElementById("labelMonto");
+  const monto = document.getElementById("monto");
+
   if (tipo === "efectivo") {
     document.getElementById("btnEfectivo").classList.add("activo");
     document.getElementById("valePanel").style.display = "none";
     document.getElementById("aseguradora").value = "";
+    labelMonto.innerText = "Monto recibido";
+    monto.placeholder = "Ej. 1500";
   }
 
   if (tipo === "vale") {
     document.getElementById("btnVale").classList.add("activo");
     document.getElementById("valePanel").style.display = "block";
+    labelMonto.innerText = "Número de vales";
+    monto.placeholder = "Ej. 3";
   }
 
   if (tipo === "transferencia") {
     document.getElementById("btnTransferencia").classList.add("activo");
     document.getElementById("valePanel").style.display = "none";
     document.getElementById("aseguradora").value = "";
+    labelMonto.innerText = "Monto recibido por transferencia";
+    monto.placeholder = "Ej. 1500";
   }
 
   actualizarPreview();
@@ -90,13 +104,17 @@ function setGratis(valor) {
 }
 
 function guardar() {
+  const tipo = document.getElementById("tipo").value || tipoSeleccionado;
+  const cantidadCapturada = Number(document.getElementById("monto").value) || 0;
+
   const registro = {
     fecha: document.getElementById("fecha").value,
     marca: document.getElementById("marca").value.trim().toUpperCase(),
     submarca: document.getElementById("submarca").value.trim().toUpperCase(),
-    tipo: document.getElementById("tipo").value || tipoSeleccionado,
+    tipo: tipo,
     aseguradora: document.getElementById("aseguradora").value,
-    monto: Number(document.getElementById("monto").value) || 0,
+    monto: tipo === "vale" ? 0 : cantidadCapturada,
+    numeroVales: tipo === "vale" ? cantidadCapturada : 0,
     ajustador: Number(document.getElementById("ajustador").value) || 0,
     policia: Number(document.getElementById("policia").value) || 0,
     corralon: document.getElementById("corralon").value || corralonSeleccionado,
@@ -134,6 +152,10 @@ function mostrar() {
   lista.innerHTML = "";
 
   datos.forEach((d, index) => {
+    const cantidadPrincipal = d.tipo === "vale"
+      ? textoVales(d.numeroVales || d.monto)
+      : dinero(d.monto);
+
     lista.innerHTML += `
       <div class="card">
         <div class="carIcon">🚗</div>
@@ -152,7 +174,7 @@ function mostrar() {
 
         <div class="cardRight">
           <span class="badge ${d.tipo}">${textoTipo(d.tipo)}</span>
-          <b>${dinero(d.monto)}</b>
+          <b>${cantidadPrincipal}</b>
           <small>Total: ${dinero(d.ganancia)}</small>
         </div>
 
@@ -173,7 +195,7 @@ function resumen() {
 
   datos.forEach(d => {
     if (d.tipo === "efectivo") totalEfectivo += d.monto;
-    if (d.tipo === "vale") totalVale += d.monto;
+    if (d.tipo === "vale") totalVale += Number(d.numeroVales || d.monto || 0);
     if (d.tipo === "transferencia") totalTransferencia += d.monto;
 
     totalGastos += d.gastos;
@@ -181,14 +203,15 @@ function resumen() {
   });
 
   document.getElementById("totalEfectivo").innerText = dinero(totalEfectivo);
-  document.getElementById("totalVale").innerText = dinero(totalVale);
+  document.getElementById("totalVale").innerText = textoVales(totalVale);
   document.getElementById("totalTransferencia").innerText = dinero(totalTransferencia);
   document.getElementById("totalGastos").innerText = dinero(totalGastos);
   document.getElementById("gananciaTotal").innerText = dinero(gananciaTotal);
 }
 
 function actualizarPreview() {
-  const ingreso = Number(document.getElementById("monto")?.value) || 0;
+  const cantidad = Number(document.getElementById("monto")?.value) || 0;
+  const ingreso = tipoSeleccionado === "vale" ? 0 : cantidad;
   const ajustador = Number(document.getElementById("ajustador")?.value) || 0;
   const policia = Number(document.getElementById("policia")?.value) || 0;
   const pagoMPJC = Number(document.getElementById("pagoMPJC")?.value) || 0;
@@ -199,7 +222,9 @@ function actualizarPreview() {
   const gastos = ajustador + policia + pagoMPJC + gasolina + diesel + otros;
   const ganancia = ingreso - gastos;
 
-  document.getElementById("previewIngreso").innerText = dinero(ingreso);
+  document.getElementById("previewIngreso").innerText =
+    tipoSeleccionado === "vale" ? textoVales(cantidad) : dinero(ingreso);
+
   document.getElementById("previewGastos").innerText = dinero(gastos);
   document.getElementById("previewGanancia").innerText = dinero(ganancia);
   document.getElementById("previewTipo").innerText = textoTipo(tipoSeleccionado);
@@ -330,7 +355,9 @@ function enviarWhatsApp(tipoReporte) {
     : `*REPORTE SEMANAL*\nDel ${inicio} al ${hoy}\n\n`;
 
   registrosFiltrados.forEach((r, i) => {
-    const ingreso = Number(r.monto) || 0;
+    const ingreso = r.tipo === "vale" ? 0 : Number(r.monto) || 0;
+    const numeroVales = r.tipo === "vale" ? Number(r.numeroVales || r.monto || 0) : 0;
+
     const ajustador = Number(r.ajustador) || 0;
     const policia = Number(r.policia) || 0;
     const mpjc = Number(r.pagoMPJC) || 0;
@@ -342,7 +369,7 @@ function enviarWhatsApp(tipoReporte) {
     const totalRegistro = ingreso - gastosRegistro;
 
     if (r.tipo === "efectivo") totalEfectivo += ingreso;
-    if (r.tipo === "vale") totalVale += ingreso;
+    if (r.tipo === "vale") totalVale += numeroVales;
     if (r.tipo === "transferencia") totalTransferencia += ingreso;
 
     ingresoTotal += ingreso;
@@ -356,9 +383,7 @@ function enviarWhatsApp(tipoReporte) {
     totalDiesel += diesel;
     totalOtros += otros;
 
-    const tipoTexto = r.tipo === "transferencia"
-      ? "🔴 TRANSFERENCIA"
-      : textoTipo(r.tipo);
+    const tipoTexto = r.tipo === "transferencia" ? "🔴 TRANSFERENCIA" : textoTipo(r.tipo);
 
     mensaje += `*${i + 1}. ${r.marca || "SIN MARCA"} ${r.submarca || ""}*\n`;
     mensaje += `Fecha: ${r.fecha || "Sin fecha"}\n`;
@@ -369,7 +394,12 @@ function enviarWhatsApp(tipoReporte) {
     mensaje += `Inventario: ${r.inventario || "No aplica"}\n`;
     mensaje += `Se baja gratis: ${r.gratis === "si" ? "Sí" : "No"}\n\n`;
 
-    mensaje += `Ingreso: ${dinero(ingreso)}\n`;
+    if (r.tipo === "vale") {
+      mensaje += `Número de vales: ${textoVales(numeroVales)}\n`;
+    } else {
+      mensaje += `Ingreso: ${dinero(ingreso)}\n`;
+    }
+
     mensaje += `Ajustador: -${dinero(ajustador)}\n`;
     mensaje += `Policías: -${dinero(policia)}\n`;
     mensaje += `Pago MP/JC: -${dinero(mpjc)}\n`;
@@ -382,7 +412,7 @@ function enviarWhatsApp(tipoReporte) {
 
   mensaje += `*RESUMEN GENERAL*\n`;
   mensaje += `Efectivo: ${dinero(totalEfectivo)}\n`;
-  mensaje += `Vales: ${dinero(totalVale)}\n`;
+  mensaje += `Vales: ${textoVales(totalVale)}\n`;
   mensaje += `🔴 Transferencias: ${dinero(totalTransferencia)}\n`;
   mensaje += `Ingreso total: ${dinero(ingresoTotal)}\n\n`;
 
