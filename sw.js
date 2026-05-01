@@ -1,22 +1,13 @@
 self.addEventListener("install", event => {
+  self.skipWaiting();
+});
+
+self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.open("control-gruas-cache").then(cache => {
-      return cache.addAll([
-        "./",
-        "./index.html",
-        "./styles.css",
-        "./app.js",
-        "./logo.png",
-        "./manifest.json"
-      ]);
-    })
+    caches.keys().then(keys => Promise.all(keys.map(key => caches.delete(key))))
   );
 });
 
 self.addEventListener("fetch", event => {
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
-    })
-  );
+  event.respondWith(fetch(event.request));
 });
