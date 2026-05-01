@@ -153,7 +153,7 @@ function mostrar() {
 
   datos.forEach((d, index) => {
     const cantidadPrincipal = d.tipo === "vale"
-      ? textoVales(d.numeroVales || 0)
+      ? textoVales(d.numeroVales || d.monto)
       : dinero(d.monto);
 
     lista.innerHTML += `
@@ -195,7 +195,7 @@ function resumen() {
 
   datos.forEach(d => {
     if (d.tipo === "efectivo") totalEfectivo += d.monto;
-    if (d.tipo === "vale") totalVale += Number(d.numeroVales || 0);
+    if (d.tipo === "vale") totalVale += Number(d.numeroVales || d.monto || 0);
     if (d.tipo === "transferencia") totalTransferencia += d.monto;
 
     totalGastos += d.gastos;
@@ -212,7 +212,6 @@ function resumen() {
 function actualizarPreview() {
   const cantidad = Number(document.getElementById("monto")?.value) || 0;
   const ingreso = tipoSeleccionado === "vale" ? 0 : cantidad;
-
   const ajustador = Number(document.getElementById("ajustador")?.value) || 0;
   const policia = Number(document.getElementById("policia")?.value) || 0;
   const pagoMPJC = Number(document.getElementById("pagoMPJC")?.value) || 0;
@@ -339,6 +338,7 @@ function enviarWhatsApp(tipoReporte) {
   let totalEfectivo = 0;
   let totalVale = 0;
   let totalTransferencia = 0;
+
   let ingresoTotal = 0;
   let descuentoPagos = 0;
   let totalFinal = 0;
@@ -356,7 +356,7 @@ function enviarWhatsApp(tipoReporte) {
 
   registrosFiltrados.forEach((r, i) => {
     const ingreso = r.tipo === "vale" ? 0 : Number(r.monto) || 0;
-    const numeroVales = r.tipo === "vale" ? Number(r.numeroVales || 0) : 0;
+    const numeroVales = r.tipo === "vale" ? Number(r.numeroVales || r.monto || 0) : 0;
 
     const ajustador = Number(r.ajustador) || 0;
     const policia = Number(r.policia) || 0;
@@ -413,7 +413,7 @@ function enviarWhatsApp(tipoReporte) {
   mensaje += `*RESUMEN GENERAL*\n`;
   mensaje += `Efectivo: ${dinero(totalEfectivo)}\n`;
   mensaje += `Vales: ${textoVales(totalVale)}\n`;
-  mensaje += `🔴 Transferencias: ${dinero(totalTransferferencia || totalTransferencia)}\n`;
+  mensaje += `🔴 Transferencias: ${dinero(totalTransferencia)}\n`;
   mensaje += `Ingreso total: ${dinero(ingresoTotal)}\n\n`;
 
   mensaje += `*DESCUENTO POR PAGOS / GASTOS*\n`;
@@ -455,7 +455,3 @@ setCorralon("no");
 setGratis("no");
 actualizarPreview();
 mostrar();
-
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./sw.js");
-}
