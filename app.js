@@ -215,7 +215,7 @@ function limpiarGastosExtra() {
 function textoTipo(tipo) {
   if (tipo === "efectivo") return "EFECTIVO";
   if (tipo === "vale") return "VALE";
-  if (tipo === "transferencia") return "TRANSFERENCIA";
+  if (tipo === "transferencia") return "🔴 TRANSFERENCIA";
   return tipo;
 }
 
@@ -300,10 +300,8 @@ function enviarWhatsApp(tipoReporte) {
 
   const registrosFiltrados = datos.filter(r => {
     if (!r.fecha) return false;
-
     if (tipoReporte === "dia") return r.fecha === hoy;
     if (tipoReporte === "semana") return r.fecha >= inicio && r.fecha <= hoy;
-
     return false;
   });
 
@@ -311,6 +309,10 @@ function enviarWhatsApp(tipoReporte) {
     alert("No hay registros para enviar.");
     return;
   }
+
+  let totalEfectivo = 0;
+  let totalVale = 0;
+  let totalTransferencia = 0;
 
   let ingresoTotal = 0;
   let descuentoPagos = 0;
@@ -339,6 +341,10 @@ function enviarWhatsApp(tipoReporte) {
     const gastosRegistro = ajustador + policia + mpjc + gasolina + diesel + otros;
     const totalRegistro = ingreso - gastosRegistro;
 
+    if (r.tipo === "efectivo") totalEfectivo += ingreso;
+    if (r.tipo === "vale") totalVale += ingreso;
+    if (r.tipo === "transferencia") totalTransferencia += ingreso;
+
     ingresoTotal += ingreso;
     descuentoPagos += gastosRegistro;
     totalFinal += totalRegistro;
@@ -350,10 +356,14 @@ function enviarWhatsApp(tipoReporte) {
     totalDiesel += diesel;
     totalOtros += otros;
 
+    const tipoTexto = r.tipo === "transferencia"
+      ? "🔴 TRANSFERENCIA"
+      : textoTipo(r.tipo);
+
     mensaje += `*${i + 1}. ${r.marca || "SIN MARCA"} ${r.submarca || ""}*\n`;
     mensaje += `Fecha: ${r.fecha || "Sin fecha"}\n`;
     mensaje += `Hora: ${r.hora || "Sin hora"}\n`;
-    mensaje += `Tipo de pago: ${textoTipo(r.tipo)}\n`;
+    mensaje += `Tipo de pago: ${tipoTexto}\n`;
     mensaje += `Aseguradora: ${r.aseguradora || "No aplica"}\n`;
     mensaje += `Corralón: ${textoCorralon(r.corralon)}\n`;
     mensaje += `Inventario: ${r.inventario || "No aplica"}\n`;
@@ -371,6 +381,9 @@ function enviarWhatsApp(tipoReporte) {
   });
 
   mensaje += `*RESUMEN GENERAL*\n`;
+  mensaje += `Efectivo: ${dinero(totalEfectivo)}\n`;
+  mensaje += `Vales: ${dinero(totalVale)}\n`;
+  mensaje += `🔴 Transferencias: ${dinero(totalTransferencia)}\n`;
   mensaje += `Ingreso total: ${dinero(ingresoTotal)}\n\n`;
 
   mensaje += `*DESCUENTO POR PAGOS / GASTOS*\n`;
