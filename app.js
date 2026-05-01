@@ -45,31 +45,34 @@ function setCorralon(tipo) {
   document.getElementById("corJC").classList.remove("activo");
   document.getElementById("corGarantia").classList.remove("activo");
 
-  const gastosExtra = document.getElementById("gastosExtra");
+  const pagoMPJCPanel = document.getElementById("pagoMPJCPanel");
   const label = document.getElementById("labelMPJC");
+  const titulo = document.getElementById("tituloMPJC");
 
   if (tipo === "no") {
     document.getElementById("corNo").classList.add("activo");
-    gastosExtra.style.display = "none";
-    limpiarGastosExtra();
+    pagoMPJCPanel.style.display = "none";
+    document.getElementById("pagoMPJC").value = "";
   }
 
   if (tipo === "mp") {
     document.getElementById("corMP").classList.add("activo");
-    gastosExtra.style.display = "block";
+    pagoMPJCPanel.style.display = "block";
+    titulo.innerText = "PAGO A MP";
     label.innerText = "¿Cuánto se le dio al MP?";
   }
 
   if (tipo === "jc") {
     document.getElementById("corJC").classList.add("activo");
-    gastosExtra.style.display = "block";
+    pagoMPJCPanel.style.display = "block";
+    titulo.innerText = "PAGO A JC";
     label.innerText = "¿Cuánto se le dio al JC?";
   }
 
   if (tipo === "garantia") {
     document.getElementById("corGarantia").classList.add("activo");
-    gastosExtra.style.display = "none";
-    limpiarGastosExtra();
+    pagoMPJCPanel.style.display = "none";
+    document.getElementById("pagoMPJC").value = "";
   }
 
   actualizarPreview();
@@ -141,7 +144,10 @@ function mostrar() {
           <span>${d.submarca || "Sin submarca"}</span>
           <span>${d.aseguradora || textoCorralon(d.corralon)}</span>
           <span>Inventario: ${d.inventario || "No aplica"}</span>
-          <span>Gastos: ${dinero(d.gastos)}</span>
+          <span>Pago MP/JC: ${dinero(d.pagoMPJC)}</span>
+          <span>Gasolina: ${dinero(d.gasolina)} · Diésel: ${dinero(d.diesel)}</span>
+          <span>Otros: ${dinero(d.otros)}</span>
+          <span>Gastos totales: ${dinero(d.gastos)}</span>
         </div>
 
         <div class="cardRight">
@@ -295,13 +301,8 @@ function enviarWhatsApp(tipoReporte) {
   const registrosFiltrados = datos.filter(r => {
     if (!r.fecha) return false;
 
-    if (tipoReporte === "dia") {
-      return r.fecha === hoy;
-    }
-
-    if (tipoReporte === "semana") {
-      return r.fecha >= inicio && r.fecha <= hoy;
-    }
+    if (tipoReporte === "dia") return r.fecha === hoy;
+    if (tipoReporte === "semana") return r.fecha >= inicio && r.fecha <= hoy;
 
     return false;
   });
