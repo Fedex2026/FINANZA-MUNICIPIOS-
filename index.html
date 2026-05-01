@@ -6,8 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <link rel="stylesheet" href="styles.css" />
-
-  <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="logo.png">
   <link rel="apple-touch-icon" href="logo.png">
@@ -18,12 +16,11 @@
 
 <div class="app">
 
-  <!-- HEADER -->
   <header class="topbar">
     <button class="iconBtn" onclick="abrirMenu()">☰</button>
 
     <div class="logoHeader">
-      <img src="logo.png">
+      <img src="logo.png" alt="Logo">
       <div>
         <h1>Control de Ingresos</h1>
         <p>Grúas Metropolitanas</p>
@@ -33,70 +30,216 @@
     <button class="iconBtn" onclick="irA('registros')">⌕</button>
   </header>
 
-  <!-- MENU -->
   <div id="menuLateral" class="menuLateral">
     <button onclick="cerrarMenu()">✕ Cerrar</button>
     <button onclick="irA('inicio')">Inicio</button>
-    <button onclick="irA('agregar')">Agregar</button>
+    <button onclick="irA('agregar')">Agregar registro</button>
     <button onclick="irA('resumen')">Resumen</button>
     <button onclick="irA('registros')">Registros</button>
-    <button onclick="enviarWhatsApp('dia')">🟢 WhatsApp Día</button>
-    <button onclick="enviarWhatsApp('semana')">🟢 WhatsApp Semana</button>
+    <button onclick="enviarWhatsApp('dia')">🟢 WhatsApp día</button>
+    <button onclick="enviarWhatsApp('semana')">🟢 WhatsApp semana</button>
   </div>
 
-  <!-- FORM -->
+  <section class="panel resumenPanel">
+    <div class="panelHeader">
+      <span>RESUMEN DEL DÍA</span>
+      <small id="fechaHoy"></small>
+    </div>
+
+    <div class="resumenGrid">
+      <div class="resumenBox">
+        <small>Total Efectivo</small>
+        <b id="totalEfectivo">$0</b>
+      </div>
+
+      <div class="resumenBox">
+        <small>Total Vales</small>
+        <b class="azul" id="totalVale">0 vales</b>
+      </div>
+
+      <div class="resumenBox">
+        <small>Transferencia</small>
+        <b class="morado" id="totalTransferencia">$0</b>
+      </div>
+
+      <div class="resumenBox">
+        <small>Gastos</small>
+        <b class="naranja" id="totalGastos">$0</b>
+      </div>
+    </div>
+
+    <div class="gananciaBox">
+      <small>Ganancia Total</small>
+      <b id="gananciaTotal">$0</b>
+    </div>
+  </section>
+
   <section class="panel agregarPanel">
+    <div class="panelHeader">
+      <span>AGREGAR NUEVO REGISTRO</span>
+    </div>
 
     <label>Fecha</label>
     <input type="date" id="fecha" />
 
     <label>Marca</label>
-    <input type="text" id="marca" />
+    <input type="text" id="marca" placeholder="Ej. Nissan" />
 
     <label>Submarca</label>
-    <input type="text" id="submarca" />
-
+    <input type="text" id="submarca" placeholder="Ej. Versa" />
   </section>
 
-  <!-- TIPO -->
   <section class="panel">
     <div class="sectionTitle">TIPO DE PAGO</div>
 
     <div class="payButtons">
-      <button id="btnEfectivo" onclick="setTipo('efectivo')">EFECTIVO</button>
-      <button id="btnVale" onclick="setTipo('vale')">VALE</button>
-      <button id="btnTransferencia" onclick="setTipo('transferencia')">TRANSFERENCIA</button>
+      <button type="button" id="btnEfectivo" onclick="setTipo('efectivo')">💵 EFECTIVO</button>
+      <button type="button" id="btnVale" onclick="setTipo('vale')">📄 VALE</button>
+      <button type="button" id="btnTransferencia" onclick="setTipo('transferencia')">💳 TRANSFERENCIA</button>
     </div>
 
     <input type="hidden" id="tipo" />
   </section>
 
-  <!-- VALES -->
   <section class="panel" id="valePanel">
+    <div class="sectionTitle">SI ES VALE</div>
+
     <label>Aseguradora</label>
     <select id="aseguradora">
-      <option value="">Seleccionar</option>
+      <option value="">Seleccionar aseguradora</option>
       <option>CHUBB</option>
       <option>ATLAS</option>
       <option>AXA</option>
       <option>SURA</option>
       <option>GNP</option>
+      <option>MAPFRE</option>
+      <option>BANCOMER</option>
+      <option>LA LATINO</option>
+      <option>ANA</option>
+      <option>GENERAL DE SEGUROS</option>
+      <option>QUALITAS</option>
+      <option>ZURICH</option>
+      <option>PRIMERO SEGUROS</option>
+      <option>AFIRME</option>
+      <option>BX+</option>
+      <option>BANORTE</option>
+      <option>HDI</option>
+      <option>INBURSA</option>
     </select>
   </section>
 
-  <!-- INGRESO -->
   <section class="panel">
+    <div class="sectionTitle naranjaTexto">INGRESO</div>
+
     <label id="labelMonto">Monto recibido</label>
-    <input type="number" id="monto" />
+    <input type="number" id="monto" placeholder="Ej. 1500" />
   </section>
 
-  <!-- GUARDAR -->
-  <button class="saveBtn" onclick="guardar()">GUARDAR</button>
+  <section class="panel">
+    <div class="sectionTitle verdeTexto">GASTOS</div>
 
-  <!-- REGISTROS -->
+    <div class="twoCols">
+      <div>
+        <label>Se le dio a ajustador</label>
+        <input type="number" id="ajustador" placeholder="Ej. 300" />
+      </div>
+
+      <div>
+        <label>Se le dio a policías</label>
+        <input type="number" id="policia" placeholder="Ej. 200" />
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="sectionTitle">CORRALÓN</div>
+
+    <label>¿A dónde va?</label>
+    <div class="corralonButtons">
+      <button type="button" id="corNo" onclick="setCorralon('no')">NO</button>
+      <button type="button" id="corMP" onclick="setCorralon('mp')">MP</button>
+      <button type="button" id="corJC" onclick="setCorralon('jc')">JC</button>
+      <button type="button" id="corGarantia" onclick="setCorralon('garantia')">GARANTÍA</button>
+    </div>
+
+    <input type="hidden" id="corralon" />
+
+    <label>Número de inventario</label>
+    <input type="text" id="inventario" placeholder="Ej. INV-001234" />
+  </section>
+
+  <section class="panel" id="pagoMPJCPanel" style="display:none;">
+    <div class="sectionTitle naranjaTexto" id="tituloMPJC">PAGO MP / JC</div>
+
+    <label id="labelMPJC">Cantidad</label>
+    <input type="number" id="pagoMPJC" placeholder="Ej. 500" />
+  </section>
+
+  <section class="panel" id="gastosExtra">
+    <div class="sectionTitle naranjaTexto">GASTOS EXTRA</div>
+
+    <div class="twoCols">
+      <div>
+        <label>Gasolina</label>
+        <input type="number" id="gasolina" placeholder="Ej. 200" />
+      </div>
+
+      <div>
+        <label>Diésel</label>
+        <input type="number" id="diesel" placeholder="Ej. 300" />
+      </div>
+    </div>
+
+    <label>Otros gastos</label>
+    <input type="number" id="otros" placeholder="Ej. 150" />
+  </section>
+
+  <section class="panel">
+    <div class="sectionTitle moradoTexto">¿SE BAJA GRATIS?</div>
+
+    <div class="freeButtons">
+      <button type="button" id="gratisSi" onclick="setGratis('si')">SÍ</button>
+      <button type="button" id="gratisNo" onclick="setGratis('no')">NO</button>
+    </div>
+
+    <input type="hidden" id="gratis" />
+  </section>
+
+  <section class="panel">
+    <div class="sectionTitle moradoTexto">RESUMEN DEL MOVIMIENTO</div>
+
+    <div class="miniResumen">
+      <p>Ingreso total <b id="previewIngreso">$0</b></p>
+      <p>Descuento por pagos <b id="previewGastos">$0</b></p>
+      <p>Total final <b id="previewGanancia">$0</b></p>
+      <p>Forma de ingreso <b id="previewTipo">EFECTIVO</b></p>
+    </div>
+  </section>
+
+  <button class="saveBtn" onclick="guardar()">💾 GUARDAR REGISTRO</button>
+
+  <button class="whatsappBtn" onclick="enviarWhatsApp('dia')">
+    <span class="waLogo">☎</span> ENVIAR REPORTE DEL DÍA POR WHATSAPP
+  </button>
+
+  <button class="whatsappBtn semana" onclick="enviarWhatsApp('semana')">
+    <span class="waLogo">☎</span> ENVIAR REPORTE SEMANAL POR WHATSAPP
+  </button>
+
   <section class="panel registrosPanel">
+    <div class="panelHeader">
+      <span>REGISTROS</span>
+    </div>
+
     <div id="lista"></div>
   </section>
+
+  <nav class="bottomNav">
+    <button onclick="irA('inicio')">🏠<span>Inicio</span></button>
+    <button onclick="irA('agregar')">➕<span>Agregar</span></button>
+    <button onclick="irA('resumen')">📊<span>Resumen</span></button>
+    <button onclick="irA('registros')">•••<span>Más</span></button>
+  </nav>
 
 </div>
 
