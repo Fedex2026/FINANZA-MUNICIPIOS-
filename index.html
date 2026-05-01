@@ -11,15 +11,25 @@
 <div class="app">
 
   <header class="topbar">
-    <button class="iconBtn">☰</button>
+    <button class="iconBtn" onclick="abrirMenu()">☰</button>
     <div>
       <h1>Control de Ingresos</h1>
       <p>Grúas Metropolitanas</p>
     </div>
-    <button class="iconBtn">⌕</button>
+    <button class="iconBtn" onclick="irA('registros')">⌕</button>
   </header>
 
-  <section class="panel">
+  <div id="menuLateral" class="menuLateral">
+    <button onclick="cerrarMenu()">✕ Cerrar</button>
+    <button onclick="irA('inicio')">Inicio</button>
+    <button onclick="irA('agregar')">Agregar registro</button>
+    <button onclick="irA('resumen')">Resumen</button>
+    <button onclick="irA('registros')">Registros</button>
+    <button onclick="enviarWhatsApp('dia')">🟢 WhatsApp día</button>
+    <button onclick="enviarWhatsApp('semana')">🟢 WhatsApp semana</button>
+  </div>
+
+  <section class="panel resumenPanel">
     <div class="panelHeader">
       <span>RESUMEN DEL DÍA</span>
       <small id="fechaHoy"></small>
@@ -150,7 +160,7 @@
   <section class="panel" id="gastosExtra" style="display:none;">
     <div class="sectionTitle naranjaTexto">GASTOS EXTRA</div>
 
-    <label id="labelMPJC">Pago a MP / JC</label>
+    <label id="labelMPJC">¿Cuánto se le dio al MP / JC?</label>
     <input type="number" id="pagoMPJC" placeholder="Ej. 500" />
 
     <div class="twoCols">
@@ -184,21 +194,26 @@
     <div class="sectionTitle moradoTexto">RESUMEN DEL MOVIMIENTO</div>
 
     <div class="miniResumen">
-      <p>Total ingreso <b id="previewIngreso">$0</b></p>
-      <p>Total gastos <b id="previewGastos">$0</b></p>
-      <p>Ganancia <b id="previewGanancia">$0</b></p>
-      <p>Forma de ingreso <b id="previewTipo">Efectivo</b></p>
+      <p>Ingreso total <b id="previewIngreso">$0</b></p>
+      <p>Descuento por pagos <b id="previewGastos">$0</b></p>
+      <p>Total final <b id="previewGanancia">$0</b></p>
+      <p>Forma de ingreso <b id="previewTipo">EFECTIVO</b></p>
     </div>
   </section>
 
   <button class="saveBtn" onclick="guardar()">💾 GUARDAR REGISTRO</button>
 
-  <button class="whatsappBtn" onclick="enviarWhatsApp('dia')">📲 ENVIAR REPORTE DEL DÍA</button>
-  <button class="whatsappBtn semana" onclick="enviarWhatsApp('semana')">📆 ENVIAR REPORTE DE LA SEMANA</button>
+  <button class="whatsappBtn" onclick="enviarWhatsApp('dia')">
+    <span class="waLogo">☎</span> ENVIAR REPORTE DEL DÍA POR WHATSAPP
+  </button>
+
+  <button class="whatsappBtn semana" onclick="enviarWhatsApp('semana')">
+    <span class="waLogo">☎</span> ENVIAR REPORTE SEMANAL POR WHATSAPP
+  </button>
 
   <section class="panel registrosPanel">
     <div class="panelHeader">
-      <span>REGISTROS DE HOY</span>
+      <span>REGISTROS</span>
     </div>
 
     <div id="lista"></div>
