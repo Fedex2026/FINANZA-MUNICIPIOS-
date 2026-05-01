@@ -57,13 +57,13 @@ function setCorralon(tipo) {
   if (tipo === "mp") {
     document.getElementById("corMP").classList.add("activo");
     gastosExtra.style.display = "block";
-    label.innerText = "Pago a MP";
+    label.innerText = "¿Cuánto se le dio al MP?";
   }
 
   if (tipo === "jc") {
     document.getElementById("corJC").classList.add("activo");
     gastosExtra.style.display = "block";
-    label.innerText = "Pago a JC";
+    label.innerText = "¿Cuánto se le dio al JC?";
   }
 
   if (tipo === "garantia") {
@@ -140,13 +140,14 @@ function mostrar() {
           <b>${d.marca || "SIN MARCA"}</b>
           <span>${d.submarca || "Sin submarca"}</span>
           <span>${d.aseguradora || textoCorralon(d.corralon)}</span>
-          <span>Gastos extra: ${dinero((d.pagoMPJC || 0) + (d.gasolina || 0) + (d.diesel || 0) + (d.otros || 0))}</span>
+          <span>Inventario: ${d.inventario || "No aplica"}</span>
+          <span>Gastos: ${dinero(d.gastos)}</span>
         </div>
 
         <div class="cardRight">
           <span class="badge ${d.tipo}">${textoTipo(d.tipo)}</span>
           <b>${dinero(d.monto)}</b>
-          <small>Ganancia: ${dinero(d.ganancia)}</small>
+          <small>Total: ${dinero(d.ganancia)}</small>
         </div>
 
         <button class="deleteBtn" onclick="eliminar(${index})">Eliminar</button>
@@ -217,7 +218,7 @@ function textoCorralon(corralon) {
   if (corralon === "mp") return "MP";
   if (corralon === "jc") return "JC";
   if (corralon === "garantia") return "GARANTÍA DE PAGO";
-  return corralon;
+  return corralon || "NO CORRALÓN";
 }
 
 function eliminar(index) {
@@ -244,7 +245,17 @@ function limpiarFormulario() {
   actualizarPreview();
 }
 
+function abrirMenu() {
+  document.getElementById("menuLateral").classList.add("activo");
+}
+
+function cerrarMenu() {
+  document.getElementById("menuLateral").classList.remove("activo");
+}
+
 function irA(seccion) {
+  cerrarMenu();
+
   if (seccion === "inicio") {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -254,7 +265,7 @@ function irA(seccion) {
   }
 
   if (seccion === "resumen") {
-    document.querySelector(".panel").scrollIntoView({ behavior: "smooth" });
+    document.querySelector(".resumenPanel").scrollIntoView({ behavior: "smooth" });
   }
 
   if (seccion === "registros") {
@@ -300,41 +311,77 @@ function enviarWhatsApp(tipoReporte) {
     return;
   }
 
-  let totalIngreso = 0;
-  let totalGastos = 0;
-  let totalGanancia = 0;
+  let ingresoTotal = 0;
+  let descuentoPagos = 0;
+  let totalFinal = 0;
+
+  let totalAjustador = 0;
+  let totalPolicia = 0;
+  let totalMPJC = 0;
+  let totalGasolina = 0;
+  let totalDiesel = 0;
+  let totalOtros = 0;
 
   let mensaje = tipoReporte === "dia"
     ? `*REPORTE DEL DÍA*\nFecha: ${hoy}\n\n`
     : `*REPORTE SEMANAL*\nDel ${inicio} al ${hoy}\n\n`;
 
   registrosFiltrados.forEach((r, i) => {
-    totalIngreso += r.monto || 0;
-    totalGastos += r.gastos || 0;
-    totalGanancia += r.ganancia || 0;
+    const ingreso = Number(r.monto) || 0;
+    const ajustador = Number(r.ajustador) || 0;
+    const policia = Number(r.policia) || 0;
+    const mpjc = Number(r.pagoMPJC) || 0;
+    const gasolina = Number(r.gasolina) || 0;
+    const diesel = Number(r.diesel) || 0;
+    const otros = Number(r.otros) || 0;
+
+    const gastosRegistro = ajustador + policia + mpjc + gasolina + diesel + otros;
+    const totalRegistro = ingreso - gastosRegistro;
+
+    ingresoTotal += ingreso;
+    descuentoPagos += gastosRegistro;
+    totalFinal += totalRegistro;
+
+    totalAjustador += ajustador;
+    totalPolicia += policia;
+    totalMPJC += mpjc;
+    totalGasolina += gasolina;
+    totalDiesel += diesel;
+    totalOtros += otros;
 
     mensaje += `*${i + 1}. ${r.marca || "SIN MARCA"} ${r.submarca || ""}*\n`;
     mensaje += `Fecha: ${r.fecha || "Sin fecha"}\n`;
     mensaje += `Hora: ${r.hora || "Sin hora"}\n`;
-    mensaje += `Tipo: ${textoTipo(r.tipo)}\n`;
+    mensaje += `Tipo de pago: ${textoTipo(r.tipo)}\n`;
     mensaje += `Aseguradora: ${r.aseguradora || "No aplica"}\n`;
     mensaje += `Corralón: ${textoCorralon(r.corralon)}\n`;
     mensaje += `Inventario: ${r.inventario || "No aplica"}\n`;
-    mensaje += `Ingreso: ${dinero(r.monto)}\n`;
-    mensaje += `Ajustador: ${dinero(r.ajustador)}\n`;
-    mensaje += `Policías: ${dinero(r.policia)}\n`;
-    mensaje += `Pago MP/JC: ${dinero(r.pagoMPJC)}\n`;
-    mensaje += `Gasolina: ${dinero(r.gasolina)}\n`;
-    mensaje += `Diésel: ${dinero(r.diesel)}\n`;
-    mensaje += `Otros: ${dinero(r.otros)}\n`;
-    mensaje += `Gastos totales: ${dinero(r.gastos)}\n`;
-    mensaje += `Ganancia: ${dinero(r.ganancia)}\n\n`;
+    mensaje += `Se baja gratis: ${r.gratis === "si" ? "Sí" : "No"}\n\n`;
+
+    mensaje += `Ingreso: ${dinero(ingreso)}\n`;
+    mensaje += `Ajustador: -${dinero(ajustador)}\n`;
+    mensaje += `Policías: -${dinero(policia)}\n`;
+    mensaje += `Pago MP/JC: -${dinero(mpjc)}\n`;
+    mensaje += `Gasolina: -${dinero(gasolina)}\n`;
+    mensaje += `Diésel: -${dinero(diesel)}\n`;
+    mensaje += `Otros: -${dinero(otros)}\n`;
+    mensaje += `Descuento por pagos: -${dinero(gastosRegistro)}\n`;
+    mensaje += `Total final: ${dinero(totalRegistro)}\n\n`;
   });
 
-  mensaje += `*RESUMEN*\n`;
-  mensaje += `Total ingreso: ${dinero(totalIngreso)}\n`;
-  mensaje += `Total gastos: ${dinero(totalGastos)}\n`;
-  mensaje += `Ganancia total: ${dinero(totalGanancia)}\n`;
+  mensaje += `*RESUMEN GENERAL*\n`;
+  mensaje += `Ingreso total: ${dinero(ingresoTotal)}\n\n`;
+
+  mensaje += `*DESCUENTO POR PAGOS / GASTOS*\n`;
+  mensaje += `Ajustador: -${dinero(totalAjustador)}\n`;
+  mensaje += `Policías: -${dinero(totalPolicia)}\n`;
+  mensaje += `MP/JC: -${dinero(totalMPJC)}\n`;
+  mensaje += `Gasolina: -${dinero(totalGasolina)}\n`;
+  mensaje += `Diésel: -${dinero(totalDiesel)}\n`;
+  mensaje += `Otros: -${dinero(totalOtros)}\n`;
+  mensaje += `Descuento total: -${dinero(descuentoPagos)}\n\n`;
+
+  mensaje += `*TOTAL FINAL: ${dinero(totalFinal)}*`;
 
   const url = "https://wa.me/?text=" + encodeURIComponent(mensaje);
   window.open(url, "_blank");
