@@ -422,19 +422,3 @@ input::placeholder {
   font-size: 9px;
   margin-top: 2px;
 }
- .logoHeader {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-}
-
-.logoHeader img {
-  width: 32px;
-  height: 32px;
-  max-width: 32px;
-  max-height: 32px;
-  border-radius: 8px;
-  object-fit: cover;
-  display: block;
-}
