@@ -2,245 +2,659 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
   <title>Control de Ingresos</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <link rel="stylesheet" href="styles.css" />
 
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="logo.png">
-  <link rel="apple-touch-icon" href="logo.png">
-  <meta name="theme-color" content="#07111f">
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="logo.png" />
+  <link rel="apple-touch-icon" href="logo.png" />
+
+  <meta name="theme-color" content="#07111f" />
 </head>
 
 <body>
 
-<div class="app">
+  <div class="app">
 
-  <header class="topbar">
-    <button class="iconBtn" onclick="abrirMenu()">☰</button>
+    <!-- ENCABEZADO -->
+    <header class="topbar">
 
-    <div>
-      <h1>Control de Ingresos</h1>
-      <p>Grúas Metropolitanas</p>
+      <button
+        type="button"
+        class="iconBtn"
+        onclick="abrirMenu()"
+        aria-label="Abrir menú"
+      >
+        ☰
+      </button>
+
+      <div>
+        <h1>Control de Ingresos</h1>
+        <p>Grúas Metropolitanas</p>
+      </div>
+
+      <button
+        type="button"
+        class="iconBtn"
+        onclick="irA('registros')"
+        aria-label="Ir a registros"
+      >
+        ⌕
+      </button>
+
+    </header>
+
+    <!-- MENÚ LATERAL -->
+    <aside id="menuLateral" class="menuLateral">
+
+      <button type="button" onclick="cerrarMenu()">
+        ✕ Cerrar
+      </button>
+
+      <button type="button" onclick="irA('inicio')">
+        Inicio
+      </button>
+
+      <button type="button" onclick="irA('agregar')">
+        Agregar registro
+      </button>
+
+      <button type="button" onclick="irA('resumen')">
+        Resumen
+      </button>
+
+      <button type="button" onclick="irA('registros')">
+        Registros
+      </button>
+
+      <button type="button" onclick="enviarWhatsApp('dia')">
+        🟢 WhatsApp día
+      </button>
+
+      <button type="button" onclick="enviarWhatsApp('semana')">
+        🟢 WhatsApp semana
+      </button>
+
+    </aside>
+
+    <!-- RESUMEN DEL DÍA -->
+    <section
+      class="panel resumenPanel"
+      id="inicio"
+    >
+
+      <div class="panelHeader">
+        <span>RESUMEN DEL DÍA</span>
+        <small id="fechaHoy"></small>
+      </div>
+
+      <div class="resumenGrid">
+
+        <div class="resumenBox">
+          <small>Total Efectivo</small>
+          <b id="totalEfectivo">$0</b>
+        </div>
+
+        <div class="resumenBox">
+          <small>Total Vales</small>
+          <b class="azul" id="totalVale">0 vales</b>
+        </div>
+
+        <div class="resumenBox">
+          <small>Transferencia</small>
+          <b class="morado" id="totalTransferencia">$0</b>
+        </div>
+
+        <div class="resumenBox">
+          <small>Gastos</small>
+          <b class="naranja" id="totalGastos">$0</b>
+        </div>
+
+      </div>
+
+      <div class="gananciaBox">
+        <small>Ganancia Total</small>
+        <b id="gananciaTotal">$0</b>
+      </div>
+
+    </section>
+
+    <!-- FORMULARIO -->
+    <section
+      class="panel agregarPanel"
+      id="agregar"
+    >
+
+      <div class="panelHeader">
+        <span id="tituloFormulario">
+          AGREGAR NUEVO REGISTRO
+        </span>
+      </div>
+
+      <!-- ID DEL REGISTRO QUE SE ESTÁ EDITANDO -->
+      <input
+        type="hidden"
+        id="registroEditando"
+        value=""
+      />
+
+      <label for="fecha">Fecha</label>
+
+      <input
+        type="date"
+        id="fecha"
+      />
+
+      <label for="marca">Marca</label>
+
+      <input
+        type="text"
+        id="marca"
+        placeholder="Ej. Nissan"
+        autocomplete="off"
+      />
+
+      <label for="submarca">Submarca</label>
+
+      <input
+        type="text"
+        id="submarca"
+        placeholder="Ej. Versa"
+        autocomplete="off"
+      />
+
+    </section>
+
+    <!-- TIPO DE PAGO -->
+    <section class="panel">
+
+      <div class="sectionTitle">
+        TIPO DE PAGO
+      </div>
+
+      <div class="payButtons">
+
+        <button
+          type="button"
+          id="btnEfectivo"
+          onclick="setTipo('efectivo')"
+        >
+          💵 EFECTIVO
+        </button>
+
+        <button
+          type="button"
+          id="btnVale"
+          onclick="setTipo('vale')"
+        >
+          📄 VALE
+        </button>
+
+        <button
+          type="button"
+          id="btnTransferencia"
+          onclick="setTipo('transferencia')"
+        >
+          💳 TRANSFERENCIA
+        </button>
+
+      </div>
+
+      <input
+        type="hidden"
+        id="tipo"
+        value=""
+      />
+
+    </section>
+
+    <!-- DATOS DEL VALE -->
+    <section
+      class="panel"
+      id="valePanel"
+    >
+
+      <div class="sectionTitle">
+        SI ES VALE
+      </div>
+
+      <label for="aseguradora">
+        Aseguradora
+      </label>
+
+      <select id="aseguradora">
+
+        <option value="">
+          Seleccionar aseguradora
+        </option>
+
+        <option value="CHUBB">CHUBB</option>
+        <option value="ATLAS">ATLAS</option>
+        <option value="AXA">AXA</option>
+        <option value="SURA">SURA</option>
+        <option value="GNP">GNP</option>
+        <option value="MAPFRE">MAPFRE</option>
+        <option value="BANCOMER">BANCOMER</option>
+        <option value="LA LATINO">LA LATINO</option>
+        <option value="ANA">ANA</option>
+        <option value="GENERAL DE SEGUROS">
+          GENERAL DE SEGUROS
+        </option>
+        <option value="QUALITAS">QUALITAS</option>
+        <option value="ZURICH">ZURICH</option>
+        <option value="PRIMERO SEGUROS">
+          PRIMERO SEGUROS
+        </option>
+        <option value="AFIRME">AFIRME</option>
+        <option value="BX+">BX+</option>
+        <option value="BANORTE">BANORTE</option>
+        <option value="HDI">HDI</option>
+        <option value="INBURSA">INBURSA</option>
+
+      </select>
+
+    </section>
+
+    <!-- INGRESO -->
+    <section class="panel">
+
+      <div class="sectionTitle naranjaTexto">
+        INGRESO
+      </div>
+
+      <label
+        for="monto"
+        id="labelMonto"
+      >
+        Monto recibido
+      </label>
+
+      <input
+        type="number"
+        id="monto"
+        placeholder="Ej. 1500"
+        min="0"
+        step="0.01"
+        inputmode="decimal"
+      />
+
+    </section>
+
+    <!-- GASTOS PRINCIPALES -->
+    <section class="panel">
+
+      <div class="sectionTitle verdeTexto">
+        GASTOS
+      </div>
+
+      <div class="twoCols">
+
+        <div>
+          <label for="ajustador">
+            Se le dio a ajustador
+          </label>
+
+          <input
+            type="number"
+            id="ajustador"
+            placeholder="Ej. 300"
+            min="0"
+            step="0.01"
+            inputmode="decimal"
+          />
+        </div>
+
+        <div>
+          <label for="policia">
+            Se le dio a policías
+          </label>
+
+          <input
+            type="number"
+            id="policia"
+            placeholder="Ej. 200"
+            min="0"
+            step="0.01"
+            inputmode="decimal"
+          />
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- CORRALÓN -->
+    <section class="panel">
+
+      <div class="sectionTitle">
+        CORRALÓN
+      </div>
+
+      <label>
+        ¿A dónde va?
+      </label>
+
+      <div class="corralonButtons">
+
+        <button
+          type="button"
+          id="corNo"
+          onclick="setCorralon('no')"
+        >
+          NO
+        </button>
+
+        <button
+          type="button"
+          id="corMP"
+          onclick="setCorralon('mp')"
+        >
+          MP
+        </button>
+
+        <button
+          type="button"
+          id="corJC"
+          onclick="setCorralon('jc')"
+        >
+          JC
+        </button>
+
+        <button
+          type="button"
+          id="corGarantia"
+          onclick="setCorralon('garantia')"
+        >
+          GARANTÍA
+        </button>
+
+      </div>
+
+      <input
+        type="hidden"
+        id="corralon"
+        value=""
+      />
+
+      <label for="inventario">
+        Número de inventario
+      </label>
+
+      <input
+        type="text"
+        id="inventario"
+        placeholder="Ej. INV-001234"
+        autocomplete="off"
+      />
+
+    </section>
+
+    <!-- PAGO MP O JC -->
+    <section
+      class="panel"
+      id="pagoMPJCPanel"
+      style="display: none;"
+    >
+
+      <div
+        class="sectionTitle naranjaTexto"
+        id="tituloMPJC"
+      >
+        PAGO MP / JC
+      </div>
+
+      <label
+        for="pagoMPJC"
+        id="labelMPJC"
+      >
+        Cantidad
+      </label>
+
+      <input
+        type="number"
+        id="pagoMPJC"
+        placeholder="Ej. 500"
+        min="0"
+        step="0.01"
+        inputmode="decimal"
+      />
+
+    </section>
+
+    <!-- GASTOS EXTRA -->
+    <section
+      class="panel"
+      id="gastosExtra"
+    >
+
+      <div class="sectionTitle naranjaTexto">
+        GASTOS EXTRA
+      </div>
+
+      <div class="twoCols">
+
+        <div>
+          <label for="gasolina">
+            Gasolina
+          </label>
+
+          <input
+            type="number"
+            id="gasolina"
+            placeholder="Ej. 200"
+            min="0"
+            step="0.01"
+            inputmode="decimal"
+          />
+        </div>
+
+        <div>
+          <label for="diesel">
+            Diésel
+          </label>
+
+          <input
+            type="number"
+            id="diesel"
+            placeholder="Ej. 300"
+            min="0"
+            step="0.01"
+            inputmode="decimal"
+          />
+        </div>
+
+      </div>
+
+      <label for="otros">
+        Otros gastos
+      </label>
+
+      <input
+        type="number"
+        id="otros"
+        placeholder="Ej. 150"
+        min="0"
+        step="0.01"
+        inputmode="decimal"
+      />
+
+    </section>
+
+    <!-- BAJA GRATIS -->
+    <section class="panel">
+
+      <div class="sectionTitle moradoTexto">
+        ¿SE BAJA GRATIS?
+      </div>
+
+      <div class="freeButtons">
+
+        <button
+          type="button"
+          id="gratisSi"
+          onclick="setGratis('si')"
+        >
+          SÍ
+        </button>
+
+        <button
+          type="button"
+          id="gratisNo"
+          onclick="setGratis('no')"
+        >
+          NO
+        </button>
+
+      </div>
+
+      <input
+        type="hidden"
+        id="gratis"
+        value=""
+      />
+
+    </section>
+
+    <!-- RESUMEN DEL MOVIMIENTO -->
+    <section
+      class="panel"
+      id="resumen"
+    >
+
+      <div class="sectionTitle moradoTexto">
+        RESUMEN DEL MOVIMIENTO
+      </div>
+
+      <div class="miniResumen">
+
+        <p>
+          Ingreso total
+          <b id="previewIngreso">$0</b>
+        </p>
+
+        <p>
+          Descuento por pagos
+          <b id="previewGastos">$0</b>
+        </p>
+
+        <p>
+          Total final
+          <b id="previewGanancia">$0</b>
+        </p>
+
+        <p>
+          Forma de ingreso
+          <b id="previewTipo">EFECTIVO</b>
+        </p>
+
+      </div>
+
+    </section>
+
+    <!-- BOTONES GUARDAR Y CANCELAR EDICIÓN -->
+    <div class="accionesFormulario">
+
+      <button
+        type="button"
+        class="saveBtn"
+        id="saveBtn"
+        onclick="guardar()"
+      >
+        💾 GUARDAR REGISTRO
+      </button>
+
+      <button
+        type="button"
+        class="cancelEditBtn"
+        id="cancelEditBtn"
+        onclick="cancelarEdicion()"
+        style="display: none;"
+      >
+        ✕ CANCELAR EDICIÓN
+      </button>
+
     </div>
 
-    <button class="iconBtn" onclick="irA('registros')">⌕</button>
-  </header>
+    <!-- WHATSAPP -->
+    <button
+      type="button"
+      class="whatsappBtn"
+      onclick="enviarWhatsApp('dia')"
+    >
+      <span class="waLogo">☎</span>
+      ENVIAR REPORTE DEL DÍA POR WHATSAPP
+    </button>
 
-  <div id="menuLateral" class="menuLateral">
-    <button onclick="cerrarMenu()">✕ Cerrar</button>
-    <button onclick="irA('inicio')">Inicio</button>
-    <button onclick="irA('agregar')">Agregar registro</button>
-    <button onclick="irA('resumen')">Resumen</button>
-    <button onclick="irA('registros')">Registros</button>
-    <button onclick="enviarWhatsApp('dia')">🟢 WhatsApp día</button>
-    <button onclick="enviarWhatsApp('semana')">🟢 WhatsApp semana</button>
+    <button
+      type="button"
+      class="whatsappBtn semana"
+      onclick="enviarWhatsApp('semana')"
+    >
+      <span class="waLogo">☎</span>
+      ENVIAR REPORTE SEMANAL POR WHATSAPP
+    </button>
+
+    <!-- REGISTROS -->
+    <section
+      class="panel registrosPanel"
+      id="registros"
+    >
+
+      <div class="panelHeader">
+        <span>REGISTROS</span>
+      </div>
+
+      <div id="lista"></div>
+
+    </section>
+
+    <!-- NAVEGACIÓN INFERIOR -->
+    <nav class="bottomNav">
+
+      <button
+        type="button"
+        onclick="irA('inicio')"
+      >
+        🏠
+        <span>Inicio</span>
+      </button>
+
+      <button
+        type="button"
+        onclick="irA('agregar')"
+      >
+        ➕
+        <span>Agregar</span>
+      </button>
+
+      <button
+        type="button"
+        onclick="irA('resumen')"
+      >
+        📊
+        <span>Resumen</span>
+      </button>
+
+      <button
+        type="button"
+        onclick="irA('registros')"
+      >
+        •••
+        <span>Más</span>
+      </button>
+
+    </nav>
+
   </div>
 
-  <section class="panel resumenPanel">
-    <div class="panelHeader">
-      <span>RESUMEN DEL DÍA</span>
-      <small id="fechaHoy"></small>
-    </div>
+  <script src="app.js"></script>
 
-    <div class="resumenGrid">
-      <div class="resumenBox">
-        <small>Total Efectivo</small>
-        <b id="totalEfectivo">$0</b>
-      </div>
-
-      <div class="resumenBox">
-        <small>Total Vales</small>
-        <b class="azul" id="totalVale">0 vales</b>
-      </div>
-
-      <div class="resumenBox">
-        <small>Transferencia</small>
-        <b class="morado" id="totalTransferencia">$0</b>
-      </div>
-
-      <div class="resumenBox">
-        <small>Gastos</small>
-        <b class="naranja" id="totalGastos">$0</b>
-      </div>
-    </div>
-
-    <div class="gananciaBox">
-      <small>Ganancia Total</small>
-      <b id="gananciaTotal">$0</b>
-    </div>
-  </section>
-
-  <section class="panel agregarPanel">
-    <div class="panelHeader">
-      <span>AGREGAR NUEVO REGISTRO</span>
-    </div>
-
-    <label>Fecha</label>
-    <input type="date" id="fecha" />
-
-    <label>Marca</label>
-    <input type="text" id="marca" placeholder="Ej. Nissan" />
-
-    <label>Submarca</label>
-    <input type="text" id="submarca" placeholder="Ej. Versa" />
-  </section>
-
-  <section class="panel">
-    <div class="sectionTitle">TIPO DE PAGO</div>
-
-    <div class="payButtons">
-      <button type="button" id="btnEfectivo" onclick="setTipo('efectivo')">💵 EFECTIVO</button>
-      <button type="button" id="btnVale" onclick="setTipo('vale')">📄 VALE</button>
-      <button type="button" id="btnTransferencia" onclick="setTipo('transferencia')">💳 TRANSFERENCIA</button>
-    </div>
-
-    <input type="hidden" id="tipo" />
-  </section>
-
-  <section class="panel" id="valePanel">
-    <div class="sectionTitle">SI ES VALE</div>
-
-    <label>Aseguradora</label>
-    <select id="aseguradora">
-      <option value="">Seleccionar aseguradora</option>
-      <option>CHUBB</option>
-      <option>ATLAS</option>
-      <option>AXA</option>
-      <option>SURA</option>
-      <option>GNP</option>
-      <option>MAPFRE</option>
-      <option>BANCOMER</option>
-      <option>LA LATINO</option>
-      <option>ANA</option>
-      <option>GENERAL DE SEGUROS</option>
-      <option>QUALITAS</option>
-      <option>ZURICH</option>
-      <option>PRIMERO SEGUROS</option>
-      <option>AFIRME</option>
-      <option>BX+</option>
-      <option>BANORTE</option>
-      <option>HDI</option>
-      <option>INBURSA</option>
-    </select>
-  </section>
-
-  <section class="panel">
-    <div class="sectionTitle naranjaTexto">INGRESO</div>
-
-    <label id="labelMonto">Monto recibido</label>
-    <input type="number" id="monto" placeholder="Ej. 1500" />
-  </section>
-
-  <section class="panel">
-    <div class="sectionTitle verdeTexto">GASTOS</div>
-
-    <div class="twoCols">
-      <div>
-        <label>Se le dio a ajustador</label>
-        <input type="number" id="ajustador" placeholder="Ej. 300" />
-      </div>
-
-      <div>
-        <label>Se le dio a policías</label>
-        <input type="number" id="policia" placeholder="Ej. 200" />
-      </div>
-    </div>
-  </section>
-
-  <section class="panel">
-    <div class="sectionTitle">CORRALÓN</div>
-
-    <label>¿A dónde va?</label>
-    <div class="corralonButtons">
-      <button type="button" id="corNo" onclick="setCorralon('no')">NO</button>
-      <button type="button" id="corMP" onclick="setCorralon('mp')">MP</button>
-      <button type="button" id="corJC" onclick="setCorralon('jc')">JC</button>
-      <button type="button" id="corGarantia" onclick="setCorralon('garantia')">GARANTÍA</button>
-    </div>
-
-    <input type="hidden" id="corralon" />
-
-    <label>Número de inventario</label>
-    <input type="text" id="inventario" placeholder="Ej. INV-001234" />
-  </section>
-
-  <section class="panel" id="pagoMPJCPanel" style="display:none;">
-    <div class="sectionTitle naranjaTexto" id="tituloMPJC">PAGO MP / JC</div>
-
-    <label id="labelMPJC">Cantidad</label>
-    <input type="number" id="pagoMPJC" placeholder="Ej. 500" />
-  </section>
-
-  <section class="panel" id="gastosExtra">
-    <div class="sectionTitle naranjaTexto">GASTOS EXTRA</div>
-
-    <div class="twoCols">
-      <div>
-        <label>Gasolina</label>
-        <input type="number" id="gasolina" placeholder="Ej. 200" />
-      </div>
-
-      <div>
-        <label>Diésel</label>
-        <input type="number" id="diesel" placeholder="Ej. 300" />
-      </div>
-    </div>
-
-    <label>Otros gastos</label>
-    <input type="number" id="otros" placeholder="Ej. 150" />
-  </section>
-
-  <section class="panel">
-    <div class="sectionTitle moradoTexto">¿SE BAJA GRATIS?</div>
-
-    <div class="freeButtons">
-      <button type="button" id="gratisSi" onclick="setGratis('si')">SÍ</button>
-      <button type="button" id="gratisNo" onclick="setGratis('no')">NO</button>
-    </div>
-
-    <input type="hidden" id="gratis" />
-  </section>
-
-  <section class="panel">
-    <div class="sectionTitle moradoTexto">RESUMEN DEL MOVIMIENTO</div>
-
-    <div class="miniResumen">
-      <p>Ingreso total <b id="previewIngreso">$0</b></p>
-      <p>Descuento por pagos <b id="previewGastos">$0</b></p>
-      <p>Total final <b id="previewGanancia">$0</b></p>
-      <p>Forma de ingreso <b id="previewTipo">EFECTIVO</b></p>
-    </div>
-  </section>
-
-  <button class="saveBtn" onclick="guardar()">💾 GUARDAR REGISTRO</button>
-
-  <button class="whatsappBtn" onclick="enviarWhatsApp('dia')">
-    <span class="waLogo">☎</span> ENVIAR REPORTE DEL DÍA POR WHATSAPP
-  </button>
-
-  <button class="whatsappBtn semana" onclick="enviarWhatsApp('semana')">
-    <span class="waLogo">☎</span> ENVIAR REPORTE SEMANAL POR WHATSAPP
-  </button>
-
-  <section class="panel registrosPanel">
-    <div class="panelHeader">
-      <span>REGISTROS</span>
-    </div>
-
-    <div id="lista"></div>
-  </section>
-
-  <nav class="bottomNav">
-    <button onclick="irA('inicio')">🏠<span>Inicio</span></button>
-    <button onclick="irA('agregar')">➕<span>Agregar</span></button>
-    <button onclick="irA('resumen')">📊<span>Resumen</span></button>
-    <button onclick="irA('registros')">•••<span>Más</span></button>
-  </nav>
-
-</div>
-
-<script src="app.js"></script>
 </body>
 </html>
