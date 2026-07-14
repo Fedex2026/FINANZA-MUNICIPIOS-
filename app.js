@@ -3,6 +3,7 @@ let datos = JSON.parse(localStorage.getItem("gruas")) || [];
 let tipoSeleccionado = "efectivo";
 let corralonSeleccionado = "no";
 let gratisSeleccionado = "no";
+let indiceEditando = null;
 
 function dinero(n) {
   return "$" + Number(n || 0).toLocaleString("es-MX");
@@ -99,35 +100,79 @@ function setGratis(valor) {
   document.getElementById("gratisSi").classList.remove("activo");
   document.getElementById("gratisNo").classList.remove("activo");
 
-  if (valor === "si") document.getElementById("gratisSi").classList.add("activo");
-  if (valor === "no") document.getElementById("gratisNo").classList.add("activo");
+  if (valor === "si") {
+    document.getElementById("gratisSi").classList.add("activo");
+  }
+
+  if (valor === "no") {
+    document.getElementById("gratisNo").classList.add("activo");
+  }
 }
 
 function guardar() {
-  const tipo = document.getElementById("tipo").value || tipoSeleccionado;
-  const cantidadCapturada = Number(document.getElementById("monto").value) || 0;
+  const fecha = document.getElementById("fecha").value;
+  const marca = document.getElementById("marca").value.trim().toUpperCase();
+  const submarca = document.getElementById("submarca").value.trim().toUpperCase();
+
+  if (!fecha) {
+    alert("Selecciona una fecha.");
+    return;
+  }
+
+  if (!marca) {
+    alert("Escribe la marca.");
+    return;
+  }
+
+  const tipo =
+    document.getElementById("tipo").value || tipoSeleccionado;
+
+  const cantidadCapturada =
+    Number(document.getElementById("monto").value) || 0;
+
+  const horaOriginal =
+    indiceEditando !== null && datos[indiceEditando]
+      ? datos[indiceEditando].hora
+      : new Date().toLocaleTimeString("es-MX", {
+          hour: "2-digit",
+          minute: "2-digit"
+        });
 
   const registro = {
-    fecha: document.getElementById("fecha").value,
-    marca: document.getElementById("marca").value.trim().toUpperCase(),
-    submarca: document.getElementById("submarca").value.trim().toUpperCase(),
-    tipo: tipo,
-    aseguradora: document.getElementById("aseguradora").value,
+    fecha,
+    marca,
+    submarca,
+    tipo,
+    aseguradora:
+      tipo === "vale"
+        ? document.getElementById("aseguradora").value
+        : "",
     monto: tipo === "vale" ? 0 : cantidadCapturada,
     numeroVales: tipo === "vale" ? cantidadCapturada : 0,
-    ajustador: Number(document.getElementById("ajustador").value) || 0,
-    policia: Number(document.getElementById("policia").value) || 0,
-    corralon: document.getElementById("corralon").value || corralonSeleccionado,
-    inventario: document.getElementById("inventario").value.trim().toUpperCase(),
-    pagoMPJC: Number(document.getElementById("pagoMPJC").value) || 0,
-    gasolina: Number(document.getElementById("gasolina").value) || 0,
-    diesel: Number(document.getElementById("diesel").value) || 0,
-    otros: Number(document.getElementById("otros").value) || 0,
-    gratis: document.getElementById("gratis").value || gratisSeleccionado,
-    hora: new Date().toLocaleTimeString("es-MX", {
-      hour: "2-digit",
-      minute: "2-digit"
-    })
+    ajustador:
+      Number(document.getElementById("ajustador").value) || 0,
+    policia:
+      Number(document.getElementById("policia").value) || 0,
+    corralon:
+      document.getElementById("corralon").value ||
+      corralonSeleccionado,
+    inventario:
+      document
+        .getElementById("inventario")
+        .value.trim()
+        .toUpperCase(),
+    pagoMPJC:
+      Number(document.getElementById("pagoMPJC").value) || 0,
+    gasolina:
+      Number(document.getElementById("gasolina").value) || 0,
+    diesel:
+      Number(document.getElementById("diesel").value) || 0,
+    otros:
+      Number(document.getElementById("otros").value) || 0,
+    gratis:
+      document.getElementById("gratis").value ||
+      gratisSeleccionado,
+    hora: horaOriginal
   };
 
   registro.gastos =
@@ -140,7 +185,12 @@ function guardar() {
 
   registro.ganancia = registro.monto - registro.gastos;
 
-  datos.unshift(registro);
+  if (indiceEditando === null) {
+    datos.unshift(registro);
+  } else {
+    datos[indiceEditando] = registro;
+  }
+
   localStorage.setItem("gruas", JSON.stringify(datos));
 
   limpiarFormulario();
@@ -151,39 +201,196 @@ function mostrar() {
   const lista = document.getElementById("lista");
   lista.innerHTML = "";
 
+  if (datos.length === 0) {
+    lista.innerHTML = `
+      <div class="sinRegistros">
+        No hay registros guardados.
+      </div>
+    `;
+
+    resumen();
+    return;
+  }
+
   datos.forEach((d, index) => {
-    const cantidadPrincipal = d.tipo === "vale"
-      ? textoVales(d.numeroVales || d.monto)
-      : dinero(d.monto);
+    const cantidadPrincipal =
+      d.tipo === "vale"
+        ? textoVales(d.numeroVales || d.monto)
+        : dinero(d.monto);
 
     lista.innerHTML += `
       <div class="card">
         <div class="carIcon">🚗</div>
 
         <div class="cardInfo">
-          <small>${d.hora || "00:00"} · ${d.fecha || "Sin fecha"}</small>
+          <small>
+            ${d.hora || "00:00"} · ${d.fecha || "Sin fecha"}
+          </small>
+
           <b>${d.marca || "SIN MARCA"}</b>
+
           <span>${d.submarca || "Sin submarca"}</span>
-          <span>${d.aseguradora || textoCorralon(d.corralon)}</span>
-          <span>Inventario: ${d.inventario || "No aplica"}</span>
-          <span>Pago MP/JC: ${dinero(d.pagoMPJC)}</span>
-          <span>Gasolina: ${dinero(d.gasolina)} · Diésel: ${dinero(d.diesel)}</span>
-          <span>Otros: ${dinero(d.otros)}</span>
-          <span>Gastos totales: ${dinero(d.gastos)}</span>
+
+          <span>
+            ${
+              d.tipo === "vale" && d.aseguradora
+                ? d.aseguradora
+                : textoCorralon(d.corralon)
+            }
+          </span>
+
+          <span>
+            Inventario: ${d.inventario || "No aplica"}
+          </span>
+
+          <span>
+            Pago MP/JC: ${dinero(d.pagoMPJC)}
+          </span>
+
+          <span>
+            Gasolina: ${dinero(d.gasolina)}
+            · Diésel: ${dinero(d.diesel)}
+          </span>
+
+          <span>
+            Otros: ${dinero(d.otros)}
+          </span>
+
+          <span>
+            Gastos totales: ${dinero(d.gastos)}
+          </span>
         </div>
 
         <div class="cardRight">
-          <span class="badge ${d.tipo}">${textoTipo(d.tipo)}</span>
+          <span class="badge ${d.tipo}">
+            ${textoTipo(d.tipo)}
+          </span>
+
           <b>${cantidadPrincipal}</b>
-          <small>Total: ${dinero(d.ganancia)}</small>
+
+          <small>
+            Total: ${dinero(d.ganancia)}
+          </small>
         </div>
 
-        <button class="deleteBtn" onclick="eliminar(${index})">Eliminar</button>
+        <div class="accionesRegistro">
+          <button
+            type="button"
+            class="editBtn"
+            onclick="editarRegistro(${index})"
+          >
+            ✏️ Editar
+          </button>
+
+          <button
+            type="button"
+            class="deleteBtn"
+            onclick="eliminar(${index})"
+          >
+            🗑️ Eliminar
+          </button>
+        </div>
       </div>
     `;
   });
 
   resumen();
+}
+
+function editarRegistro(index) {
+  const d = datos[index];
+
+  if (!d) {
+    alert("No se encontró el registro.");
+    return;
+  }
+
+  indiceEditando = index;
+
+  const campoOculto =
+    document.getElementById("registroEditando");
+
+  if (campoOculto) {
+    campoOculto.value = index;
+  }
+
+  document.getElementById("fecha").value = d.fecha || "";
+  document.getElementById("marca").value = d.marca || "";
+  document.getElementById("submarca").value = d.submarca || "";
+  document.getElementById("aseguradora").value =
+    d.aseguradora || "";
+
+  document.getElementById("monto").value =
+    d.tipo === "vale"
+      ? Number(d.numeroVales || 0)
+      : Number(d.monto || 0);
+
+  document.getElementById("ajustador").value =
+    d.ajustador || "";
+
+  document.getElementById("policia").value =
+    d.policia || "";
+
+  document.getElementById("inventario").value =
+    d.inventario || "";
+
+  document.getElementById("pagoMPJC").value =
+    d.pagoMPJC || "";
+
+  document.getElementById("gasolina").value =
+    d.gasolina || "";
+
+  document.getElementById("diesel").value =
+    d.diesel || "";
+
+  document.getElementById("otros").value =
+    d.otros || "";
+
+  setTipo(d.tipo || "efectivo");
+  setCorralon(d.corralon || "no");
+  setGratis(d.gratis || "no");
+
+  /*
+    setTipo y setCorralon pueden limpiar algunos campos,
+    por eso volvemos a colocarlos después.
+  */
+  document.getElementById("aseguradora").value =
+    d.aseguradora || "";
+
+  document.getElementById("pagoMPJC").value =
+    d.pagoMPJC || "";
+
+  const saveBtn = document.getElementById("saveBtn");
+  const cancelEditBtn =
+    document.getElementById("cancelEditBtn");
+  const tituloFormulario =
+    document.getElementById("tituloFormulario");
+
+  if (saveBtn) {
+    saveBtn.innerHTML = "💾 ACTUALIZAR REGISTRO";
+    saveBtn.classList.add("editando");
+  }
+
+  if (cancelEditBtn) {
+    cancelEditBtn.style.display = "block";
+  }
+
+  if (tituloFormulario) {
+    tituloFormulario.innerText = "EDITAR REGISTRO";
+  }
+
+  actualizarPreview();
+
+  document
+    .getElementById("agregar")
+    .scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+}
+
+function cancelarEdicion() {
+  limpiarFormulario();
 }
 
 function resumen() {
@@ -194,40 +401,90 @@ function resumen() {
   let gananciaTotal = 0;
 
   datos.forEach(d => {
-    if (d.tipo === "efectivo") totalEfectivo += d.monto;
-    if (d.tipo === "vale") totalVale += Number(d.numeroVales || d.monto || 0);
-    if (d.tipo === "transferencia") totalTransferencia += d.monto;
+    const monto = Number(d.monto) || 0;
+    const gastos = Number(d.gastos) || 0;
+    const ganancia = Number(d.ganancia) || 0;
 
-    totalGastos += d.gastos;
-    gananciaTotal += d.ganancia;
+    if (d.tipo === "efectivo") {
+      totalEfectivo += monto;
+    }
+
+    if (d.tipo === "vale") {
+      totalVale += Number(d.numeroVales || d.monto || 0);
+    }
+
+    if (d.tipo === "transferencia") {
+      totalTransferencia += monto;
+    }
+
+    totalGastos += gastos;
+    gananciaTotal += ganancia;
   });
 
-  document.getElementById("totalEfectivo").innerText = dinero(totalEfectivo);
-  document.getElementById("totalVale").innerText = textoVales(totalVale);
-  document.getElementById("totalTransferencia").innerText = dinero(totalTransferencia);
-  document.getElementById("totalGastos").innerText = dinero(totalGastos);
-  document.getElementById("gananciaTotal").innerText = dinero(gananciaTotal);
+  document.getElementById("totalEfectivo").innerText =
+    dinero(totalEfectivo);
+
+  document.getElementById("totalVale").innerText =
+    textoVales(totalVale);
+
+  document.getElementById("totalTransferencia").innerText =
+    dinero(totalTransferencia);
+
+  document.getElementById("totalGastos").innerText =
+    dinero(totalGastos);
+
+  document.getElementById("gananciaTotal").innerText =
+    dinero(gananciaTotal);
 }
 
 function actualizarPreview() {
-  const cantidad = Number(document.getElementById("monto")?.value) || 0;
-  const ingreso = tipoSeleccionado === "vale" ? 0 : cantidad;
-  const ajustador = Number(document.getElementById("ajustador")?.value) || 0;
-  const policia = Number(document.getElementById("policia")?.value) || 0;
-  const pagoMPJC = Number(document.getElementById("pagoMPJC")?.value) || 0;
-  const gasolina = Number(document.getElementById("gasolina")?.value) || 0;
-  const diesel = Number(document.getElementById("diesel")?.value) || 0;
-  const otros = Number(document.getElementById("otros")?.value) || 0;
+  const cantidad =
+    Number(document.getElementById("monto")?.value) || 0;
 
-  const gastos = ajustador + policia + pagoMPJC + gasolina + diesel + otros;
+  const ingreso =
+    tipoSeleccionado === "vale" ? 0 : cantidad;
+
+  const ajustador =
+    Number(document.getElementById("ajustador")?.value) || 0;
+
+  const policia =
+    Number(document.getElementById("policia")?.value) || 0;
+
+  const pagoMPJC =
+    Number(document.getElementById("pagoMPJC")?.value) || 0;
+
+  const gasolina =
+    Number(document.getElementById("gasolina")?.value) || 0;
+
+  const diesel =
+    Number(document.getElementById("diesel")?.value) || 0;
+
+  const otros =
+    Number(document.getElementById("otros")?.value) || 0;
+
+  const gastos =
+    ajustador +
+    policia +
+    pagoMPJC +
+    gasolina +
+    diesel +
+    otros;
+
   const ganancia = ingreso - gastos;
 
   document.getElementById("previewIngreso").innerText =
-    tipoSeleccionado === "vale" ? textoVales(cantidad) : dinero(ingreso);
+    tipoSeleccionado === "vale"
+      ? textoVales(cantidad)
+      : dinero(ingreso);
 
-  document.getElementById("previewGastos").innerText = dinero(gastos);
-  document.getElementById("previewGanancia").innerText = dinero(ganancia);
-  document.getElementById("previewTipo").innerText = textoTipo(tipoSeleccionado);
+  document.getElementById("previewGastos").innerText =
+    dinero(gastos);
+
+  document.getElementById("previewGanancia").innerText =
+    dinero(ganancia);
+
+  document.getElementById("previewTipo").innerText =
+    textoTipo(tipoSeleccionado);
 }
 
 function limpiarGastosExtra() {
@@ -241,7 +498,7 @@ function textoTipo(tipo) {
   if (tipo === "efectivo") return "EFECTIVO";
   if (tipo === "vale") return "VALE";
   if (tipo === "transferencia") return "🔴 TRANSFERENCIA";
-  return tipo;
+  return tipo || "";
 }
 
 function textoCorralon(corralon) {
@@ -253,13 +510,46 @@ function textoCorralon(corralon) {
 }
 
 function eliminar(index) {
+  const registro = datos[index];
+
+  if (!registro) return;
+
+  const confirmar = confirm(
+    `¿Seguro que deseas eliminar el registro de ${
+      registro.marca || "este vehículo"
+    } ${registro.submarca || ""}?`
+  );
+
+  if (!confirmar) return;
+
   datos.splice(index, 1);
   localStorage.setItem("gruas", JSON.stringify(datos));
+
+  if (indiceEditando === index) {
+    limpiarFormulario();
+  } else if (
+    indiceEditando !== null &&
+    index < indiceEditando
+  ) {
+    indiceEditando--;
+  }
+
   mostrar();
 }
 
 function limpiarFormulario() {
-  document.getElementById("fecha").value = "";
+  indiceEditando = null;
+
+  const campoOculto =
+    document.getElementById("registroEditando");
+
+  if (campoOculto) {
+    campoOculto.value = "";
+  }
+
+  document.getElementById("fecha").value =
+    fechaLocalISO();
+
   document.getElementById("marca").value = "";
   document.getElementById("submarca").value = "";
   document.getElementById("aseguradora").value = "";
@@ -273,34 +563,74 @@ function limpiarFormulario() {
   setTipo("efectivo");
   setCorralon("no");
   setGratis("no");
+
+  const saveBtn = document.getElementById("saveBtn");
+  const cancelEditBtn =
+    document.getElementById("cancelEditBtn");
+  const tituloFormulario =
+    document.getElementById("tituloFormulario");
+
+  if (saveBtn) {
+    saveBtn.innerHTML = "💾 GUARDAR REGISTRO";
+    saveBtn.classList.remove("editando");
+  }
+
+  if (cancelEditBtn) {
+    cancelEditBtn.style.display = "none";
+  }
+
+  if (tituloFormulario) {
+    tituloFormulario.innerText =
+      "AGREGAR NUEVO REGISTRO";
+  }
+
   actualizarPreview();
 }
 
 function abrirMenu() {
-  document.getElementById("menuLateral").classList.add("activo");
+  document
+    .getElementById("menuLateral")
+    .classList.add("activo");
 }
 
 function cerrarMenu() {
-  document.getElementById("menuLateral").classList.remove("activo");
+  document
+    .getElementById("menuLateral")
+    .classList.remove("activo");
 }
 
 function irA(seccion) {
   cerrarMenu();
 
   if (seccion === "inicio") {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
   }
 
   if (seccion === "agregar") {
-    document.querySelector(".agregarPanel").scrollIntoView({ behavior: "smooth" });
+    document
+      .querySelector(".agregarPanel")
+      .scrollIntoView({
+        behavior: "smooth"
+      });
   }
 
   if (seccion === "resumen") {
-    document.querySelector(".resumenPanel").scrollIntoView({ behavior: "smooth" });
+    document
+      .querySelector(".resumenPanel")
+      .scrollIntoView({
+        behavior: "smooth"
+      });
   }
 
   if (seccion === "registros") {
-    document.querySelector(".registrosPanel").scrollIntoView({ behavior: "smooth" });
+    document
+      .querySelector(".registrosPanel")
+      .scrollIntoView({
+        behavior: "smooth"
+      });
   }
 }
 
@@ -308,6 +638,7 @@ function fechaLocalISO(fecha = new Date()) {
   const y = fecha.getFullYear();
   const m = String(fecha.getMonth() + 1).padStart(2, "0");
   const d = String(fecha.getDate()).padStart(2, "0");
+
   return `${y}-${m}-${d}`;
 }
 
@@ -315,7 +646,9 @@ function inicioSemana(fecha = new Date()) {
   const f = new Date(fecha);
   const dia = f.getDay();
   const diferencia = dia === 0 ? 6 : dia - 1;
+
   f.setDate(f.getDate() - diferencia);
+
   return fechaLocalISO(f);
 }
 
@@ -325,8 +658,15 @@ function enviarWhatsApp(tipoReporte) {
 
   const registrosFiltrados = datos.filter(r => {
     if (!r.fecha) return false;
-    if (tipoReporte === "dia") return r.fecha === hoy;
-    if (tipoReporte === "semana") return r.fecha >= inicio && r.fecha <= hoy;
+
+    if (tipoReporte === "dia") {
+      return r.fecha === hoy;
+    }
+
+    if (tipoReporte === "semana") {
+      return r.fecha >= inicio && r.fecha <= hoy;
+    }
+
     return false;
   });
 
@@ -350,13 +690,21 @@ function enviarWhatsApp(tipoReporte) {
   let totalDiesel = 0;
   let totalOtros = 0;
 
-  let mensaje = tipoReporte === "dia"
-    ? `*REPORTE DEL DÍA*\nFecha: ${hoy}\n\n`
-    : `*REPORTE SEMANAL*\nDel ${inicio} al ${hoy}\n\n`;
+  let mensaje =
+    tipoReporte === "dia"
+      ? `*REPORTE DEL DÍA*\nFecha: ${hoy}\n\n`
+      : `*REPORTE SEMANAL*\nDel ${inicio} al ${hoy}\n\n`;
 
   registrosFiltrados.forEach((r, i) => {
-    const ingreso = r.tipo === "vale" ? 0 : Number(r.monto) || 0;
-    const numeroVales = r.tipo === "vale" ? Number(r.numeroVales || r.monto || 0) : 0;
+    const ingreso =
+      r.tipo === "vale"
+        ? 0
+        : Number(r.monto) || 0;
+
+    const numeroVales =
+      r.tipo === "vale"
+        ? Number(r.numeroVales || r.monto || 0)
+        : 0;
 
     const ajustador = Number(r.ajustador) || 0;
     const policia = Number(r.policia) || 0;
@@ -365,12 +713,28 @@ function enviarWhatsApp(tipoReporte) {
     const diesel = Number(r.diesel) || 0;
     const otros = Number(r.otros) || 0;
 
-    const gastosRegistro = ajustador + policia + mpjc + gasolina + diesel + otros;
-    const totalRegistro = ingreso - gastosRegistro;
+    const gastosRegistro =
+      ajustador +
+      policia +
+      mpjc +
+      gasolina +
+      diesel +
+      otros;
 
-    if (r.tipo === "efectivo") totalEfectivo += ingreso;
-    if (r.tipo === "vale") totalVale += numeroVales;
-    if (r.tipo === "transferencia") totalTransferencia += ingreso;
+    const totalRegistro =
+      ingreso - gastosRegistro;
+
+    if (r.tipo === "efectivo") {
+      totalEfectivo += ingreso;
+    }
+
+    if (r.tipo === "vale") {
+      totalVale += numeroVales;
+    }
+
+    if (r.tipo === "transferencia") {
+      totalTransferencia += ingreso;
+    }
 
     ingresoTotal += ingreso;
     descuentoPagos += gastosRegistro;
@@ -383,19 +747,30 @@ function enviarWhatsApp(tipoReporte) {
     totalDiesel += diesel;
     totalOtros += otros;
 
-    const tipoTexto = r.tipo === "transferencia" ? "🔴 TRANSFERENCIA" : textoTipo(r.tipo);
+    mensaje += `*${i + 1}. ${r.marca || "SIN MARCA"} ${
+      r.submarca || ""
+    }*\n`;
 
-    mensaje += `*${i + 1}. ${r.marca || "SIN MARCA"} ${r.submarca || ""}*\n`;
     mensaje += `Fecha: ${r.fecha || "Sin fecha"}\n`;
     mensaje += `Hora: ${r.hora || "Sin hora"}\n`;
-    mensaje += `Tipo de pago: ${tipoTexto}\n`;
-    mensaje += `Aseguradora: ${r.aseguradora || "No aplica"}\n`;
-    mensaje += `Corralón: ${textoCorralon(r.corralon)}\n`;
-    mensaje += `Inventario: ${r.inventario || "No aplica"}\n`;
-    mensaje += `Se baja gratis: ${r.gratis === "si" ? "Sí" : "No"}\n\n`;
+    mensaje += `Tipo de pago: ${textoTipo(r.tipo)}\n`;
+    mensaje += `Aseguradora: ${
+      r.aseguradora || "No aplica"
+    }\n`;
+    mensaje += `Corralón: ${textoCorralon(
+      r.corralon
+    )}\n`;
+    mensaje += `Inventario: ${
+      r.inventario || "No aplica"
+    }\n`;
+    mensaje += `Se baja gratis: ${
+      r.gratis === "si" ? "Sí" : "No"
+    }\n\n`;
 
     if (r.tipo === "vale") {
-      mensaje += `Número de vales: ${textoVales(numeroVales)}\n`;
+      mensaje += `Número de vales: ${textoVales(
+        numeroVales
+      )}\n`;
     } else {
       mensaje += `Ingreso: ${dinero(ingreso)}\n`;
     }
@@ -406,15 +781,23 @@ function enviarWhatsApp(tipoReporte) {
     mensaje += `Gasolina: -${dinero(gasolina)}\n`;
     mensaje += `Diésel: -${dinero(diesel)}\n`;
     mensaje += `Otros: -${dinero(otros)}\n`;
-    mensaje += `Descuento por pagos: -${dinero(gastosRegistro)}\n`;
-    mensaje += `Total final: ${dinero(totalRegistro)}\n\n`;
+    mensaje += `Descuento por pagos: -${dinero(
+      gastosRegistro
+    )}\n`;
+    mensaje += `Total final: ${dinero(
+      totalRegistro
+    )}\n\n`;
   });
 
   mensaje += `*RESUMEN GENERAL*\n`;
   mensaje += `Efectivo: ${dinero(totalEfectivo)}\n`;
   mensaje += `Vales: ${textoVales(totalVale)}\n`;
-  mensaje += `🔴 Transferencias: ${dinero(totalTransferencia)}\n`;
-  mensaje += `Ingreso total: ${dinero(ingresoTotal)}\n\n`;
+  mensaje += `🔴 Transferencias: ${dinero(
+    totalTransferencia
+  )}\n`;
+  mensaje += `Ingreso total: ${dinero(
+    ingresoTotal
+  )}\n\n`;
 
   mensaje += `*DESCUENTO POR PAGOS / GASTOS*\n`;
   mensaje += `Ajustador: -${dinero(totalAjustador)}\n`;
@@ -423,11 +806,16 @@ function enviarWhatsApp(tipoReporte) {
   mensaje += `Gasolina: -${dinero(totalGasolina)}\n`;
   mensaje += `Diésel: -${dinero(totalDiesel)}\n`;
   mensaje += `Otros: -${dinero(totalOtros)}\n`;
-  mensaje += `Descuento total: -${dinero(descuentoPagos)}\n\n`;
+  mensaje += `Descuento total: -${dinero(
+    descuentoPagos
+  )}\n\n`;
 
   mensaje += `*TOTAL FINAL: ${dinero(totalFinal)}*`;
 
-  const url = "https://wa.me/?text=" + encodeURIComponent(mensaje);
+  const url =
+    "https://wa.me/?text=" +
+    encodeURIComponent(mensaje);
+
   window.open(url, "_blank");
 }
 
@@ -440,7 +828,14 @@ function enviarWhatsApp(tipoReporte) {
   "diesel",
   "otros"
 ].forEach(id => {
-  document.getElementById(id).addEventListener("input", actualizarPreview);
+  const campo = document.getElementById(id);
+
+  if (campo) {
+    campo.addEventListener(
+      "input",
+      actualizarPreview
+    );
+  }
 });
 
 document.getElementById("fechaHoy").innerText =
@@ -449,6 +844,9 @@ document.getElementById("fechaHoy").innerText =
     month: "short",
     year: "numeric"
   });
+
+document.getElementById("fecha").value =
+  fechaLocalISO();
 
 setTipo("efectivo");
 setCorralon("no");
