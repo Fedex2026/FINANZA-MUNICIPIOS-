@@ -138,21 +138,24 @@
         </span>
       </div>
 
-      <!-- ID DEL REGISTRO QUE SE ESTÁ EDITANDO -->
       <input
         type="hidden"
         id="registroEditando"
         value=""
       />
 
-      <label for="fecha">Fecha</label>
+      <label for="fecha">
+        Fecha
+      </label>
 
       <input
         type="date"
         id="fecha"
       />
 
-      <label for="marca">Marca</label>
+      <label for="marca">
+        Marca
+      </label>
 
       <input
         type="text"
@@ -161,7 +164,9 @@
         autocomplete="off"
       />
 
-      <label for="submarca">Submarca</label>
+      <label for="submarca">
+        Submarca
+      </label>
 
       <input
         type="text"
@@ -244,19 +249,42 @@
         <option value="BANCOMER">BANCOMER</option>
         <option value="LA LATINO">LA LATINO</option>
         <option value="ANA">ANA</option>
+
         <option value="GENERAL DE SEGUROS">
           GENERAL DE SEGUROS
         </option>
-        <option value="QUALITAS">QUALITAS</option>
-        <option value="ZURICH">ZURICH</option>
+
+        <option value="QUALITAS">
+          QUALITAS
+        </option>
+
+        <option value="ZURICH">
+          ZURICH
+        </option>
+
         <option value="PRIMERO SEGUROS">
           PRIMERO SEGUROS
         </option>
-        <option value="AFIRME">AFIRME</option>
-        <option value="BX+">BX+</option>
-        <option value="BANORTE">BANORTE</option>
-        <option value="HDI">HDI</option>
-        <option value="INBURSA">INBURSA</option>
+
+        <option value="AFIRME">
+          AFIRME
+        </option>
+
+        <option value="BX+">
+          BX+
+        </option>
+
+        <option value="BANORTE">
+          BANORTE
+        </option>
+
+        <option value="HDI">
+          HDI
+        </option>
+
+        <option value="INBURSA">
+          INBURSA
+        </option>
 
       </select>
 
@@ -438,52 +466,222 @@
         GASTOS EXTRA
       </div>
 
-      <div class="twoCols">
+      <!-- GASOLINA -->
+      <div class="gastoBloque">
 
-        <div>
-          <label for="gasolina">
-            Gasolina
+        <label for="gasolina">
+          Gasolina
+        </label>
+
+        <input
+          type="number"
+          id="gasolina"
+          placeholder="Ej. 200"
+          min="0"
+          step="0.01"
+          inputmode="decimal"
+        />
+
+        <div
+          id="detalleGasolina"
+          class="detalleGasto oculto"
+        >
+
+          <label for="gruaGasolina">
+            Grúa que cargó gasolina
           </label>
 
           <input
-            type="number"
-            id="gasolina"
-            placeholder="Ej. 200"
-            min="0"
-            step="0.01"
-            inputmode="decimal"
+            type="text"
+            id="gruaGasolina"
+            placeholder="Ej. Plataforma 01"
+            autocomplete="off"
           />
-        </div>
 
-        <div>
-          <label for="diesel">
-            Diésel
+          <label for="operadorGasolina">
+            Nombre del operador
           </label>
 
           <input
-            type="number"
-            id="diesel"
-            placeholder="Ej. 300"
-            min="0"
-            step="0.01"
-            inputmode="decimal"
+            type="text"
+            id="operadorGasolina"
+            placeholder="Ej. Juan Pérez"
+            autocomplete="off"
           />
+
         </div>
 
       </div>
 
-      <label for="otros">
-        Otros gastos
-      </label>
+      <!-- DIÉSEL -->
+      <div class="gastoBloque">
 
-      <input
-        type="number"
-        id="otros"
-        placeholder="Ej. 150"
-        min="0"
-        step="0.01"
-        inputmode="decimal"
-      />
+        <label for="diesel">
+          Diésel
+        </label>
+
+        <input
+          type="number"
+          id="diesel"
+          placeholder="Ej. 300"
+          min="0"
+          step="0.01"
+          inputmode="decimal"
+        />
+
+        <div
+          id="detalleDiesel"
+          class="detalleGasto oculto"
+        >
+
+          <label for="gruaDiesel">
+            Seleccionar grúa
+          </label>
+
+          <select id="gruaDiesel">
+
+            <option value="">
+              Seleccionar grúa
+            </option>
+
+            <option value="CASCADIA">
+              CASCADIA
+            </option>
+
+            <option value="CENTURY">
+              CENTURY
+            </option>
+
+            <option value="M2">
+              M2
+            </option>
+
+            <option value="VOLVO GRANDE">
+              VOLVO GRANDE
+            </option>
+
+            <option value="VOLVO JR">
+              VOLVO JR
+            </option>
+
+          </select>
+
+          <label for="operadorDiesel">
+            Nombre del operador
+          </label>
+
+          <input
+            type="text"
+            id="operadorDiesel"
+            placeholder="Ej. Pedro Martínez"
+            autocomplete="off"
+          />
+
+        </div>
+
+      </div>
+
+      <!-- OTROS GASTOS -->
+      <div class="gastoBloque">
+
+        <label for="otros">
+          Otros gastos
+        </label>
+
+        <input
+          type="number"
+          id="otros"
+          placeholder="Ej. 150"
+          min="0"
+          step="0.01"
+          inputmode="decimal"
+        />
+
+        <div
+          id="detalleOtros"
+          class="detalleGasto oculto"
+        >
+
+          <label for="tipoOtroGasto">
+            ¿En qué se gastó?
+          </label>
+
+          <select
+            id="tipoOtroGasto"
+            onchange="cambiarTipoOtroGasto()"
+          >
+
+            <option value="">
+              Seleccionar concepto
+            </option>
+
+            <option value="COMIDA">
+              COMIDA
+            </option>
+
+            <option value="CASETA">
+              CASETA
+            </option>
+
+            <option value="ESTACIONAMIENTO">
+              ESTACIONAMIENTO
+            </option>
+
+            <option value="REFACCIÓN">
+              REFACCIÓN
+            </option>
+
+            <option value="LAVADO">
+              LAVADO
+            </option>
+
+            <option value="OTRO">
+              OTRO
+            </option>
+
+          </select>
+
+          <!-- DESCRIPCIÓN DE OTRO GASTO -->
+          <div
+            id="conceptoOtroPanel"
+            class="oculto"
+          >
+
+            <label for="conceptoOtro">
+              Descripción del gasto
+            </label>
+
+            <input
+              type="text"
+              id="conceptoOtro"
+              placeholder="Escribe en qué se gastó"
+              autocomplete="off"
+            />
+
+          </div>
+
+          <!-- COMIDAS -->
+          <div
+            id="comidaPanel"
+            class="oculto"
+          >
+
+            <label for="personaComida">
+              Nombre de quien recibió la comida
+            </label>
+
+            <input
+              type="text"
+              id="personaComida"
+              placeholder="Ej. Luis Hernández"
+              autocomplete="off"
+            />
+
+          </div>
+
+        </div>
+
+      </div>
 
     </section>
 
@@ -558,7 +756,7 @@
 
     </section>
 
-    <!-- BOTONES GUARDAR Y CANCELAR EDICIÓN -->
+    <!-- GUARDAR Y CANCELAR EDICIÓN -->
     <div class="accionesFormulario">
 
       <button
@@ -582,7 +780,7 @@
 
     </div>
 
-    <!-- WHATSAPP -->
+    <!-- WHATSAPP DÍA -->
     <button
       type="button"
       class="whatsappBtn"
@@ -592,6 +790,7 @@
       ENVIAR REPORTE DEL DÍA POR WHATSAPP
     </button>
 
+    <!-- WHATSAPP SEMANA -->
     <button
       type="button"
       class="whatsappBtn semana"
