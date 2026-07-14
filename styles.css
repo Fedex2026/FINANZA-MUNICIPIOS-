@@ -16,7 +16,8 @@ body {
 
 button,
 input,
-select {
+select,
+textarea {
   font-family: inherit;
 }
 
@@ -210,14 +211,15 @@ button:active {
 ========================= */
 
 label {
-  font-size: 11px;
-  color: #cbd5e1;
-  margin-bottom: 5px;
   display: block;
+  color: #cbd5e1;
+  font-size: 11px;
+  margin-bottom: 5px;
 }
 
 input,
-select {
+select,
+textarea {
   width: 100%;
   background: #091525;
   border: 1px solid #203653;
@@ -230,13 +232,20 @@ select {
   transition: 0.2s;
 }
 
+textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
   border-color: #38bdf8;
   box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
 }
 
-input::placeholder {
+input::placeholder,
+textarea::placeholder {
   color: #64748b;
 }
 
@@ -326,6 +335,119 @@ select option {
   color: #ef4444;
   border-color: #ef4444;
   background: rgba(239, 68, 68, 0.12);
+}
+
+/* =========================
+   GASTOS EXTRA
+========================= */
+
+.gastoBloque {
+  background: linear-gradient(
+    180deg,
+    rgba(9, 21, 37, 0.75),
+    rgba(7, 17, 31, 0.75)
+  );
+  border: 1px solid #203653;
+  border-radius: 13px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.gastoBloque:last-child {
+  margin-bottom: 0;
+}
+
+.gastoBloque > label:first-child {
+  color: #f8fafc;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.detalleGasto {
+  background: rgba(15, 27, 46, 0.75);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  border-radius: 11px;
+  padding: 11px;
+  margin-top: 2px;
+  animation: aparecerDetalle 0.2s ease;
+}
+
+.detalleGasto label {
+  color: #7dd3fc;
+  font-weight: 700;
+}
+
+.detalleGasto input,
+.detalleGasto select {
+  background: #071323;
+  border-color: #264764;
+}
+
+.detalleGasto input:last-child,
+.detalleGasto select:last-child {
+  margin-bottom: 0;
+}
+
+.oculto {
+  display: none !important;
+}
+
+.visible {
+  display: block !important;
+}
+
+#conceptoOtroPanel,
+#comidaPanel {
+  margin-top: 4px;
+}
+
+#conceptoOtroPanel.visible,
+#comidaPanel.visible {
+  display: block;
+}
+
+#comidaPanel {
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 8px;
+}
+
+#comidaPanel label {
+  color: #4ade80;
+}
+
+#comidaPanel input {
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+#conceptoOtroPanel {
+  background: rgba(245, 158, 11, 0.07);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 8px;
+}
+
+#conceptoOtroPanel label {
+  color: #fbbf24;
+}
+
+#conceptoOtroPanel input {
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+@keyframes aparecerDetalle {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* =========================
@@ -491,7 +613,7 @@ select option {
   display: block;
   font-size: 11px;
   color: #94a3b8;
-  line-height: 1.35;
+  line-height: 1.4;
   word-break: break-word;
 }
 
@@ -588,13 +710,12 @@ select option {
   color: #fff;
 }
 
-/* Compatibilidad si el botón eliminar todavía está solo */
 .card > .deleteBtn {
   grid-column: 1 / 4;
 }
 
 /* =========================
-   MENSAJE SIN REGISTROS
+   SIN REGISTROS
 ========================= */
 
 .sinRegistros {
@@ -670,6 +791,7 @@ select option {
 
   .card {
     grid-template-columns: 38px minmax(0, 1fr);
+    align-items: start;
   }
 
   .cardRight {
@@ -685,5 +807,13 @@ select option {
 
   .whatsappBtn {
     font-size: 11px;
+  }
+
+  .gastoBloque {
+    padding: 10px;
+  }
+
+  .detalleGasto {
+    padding: 9px;
   }
 }
